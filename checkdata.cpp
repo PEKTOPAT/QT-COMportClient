@@ -27,6 +27,7 @@ CheckData::CheckData(QWidget *parent) :
     connect(ui->push_connect,SIGNAL(clicked()),this, SLOT(openPort()));
     connect(ui->push_disconnect,SIGNAL(clicked()),this, SLOT(closePort()));
     connect(ui->comboBox_2, SIGNAL(currentIndexChanged(int)), this, SLOT(setRate_slot(int)));
+    connect(port, SIGNAL(readyRead()), this, SLOT(readPort()));
 }
 
 CheckData::~CheckData()
@@ -77,4 +78,16 @@ void CheckData::closePort()
     }
     else return;
 
+}
+
+void CheckData::receiveMsg(QByteArray data)
+{
+
+}
+
+void CheckData::readPort()
+{
+    if (port->bytesAvailable() == 0) return;
+    QByteArray data = port->readAll();
+    qDebug() << data;
 }

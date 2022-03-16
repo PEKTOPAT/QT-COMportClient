@@ -28,6 +28,8 @@ private slots:
     void openPort();
     void closePort();
     void setRate_slot(int rate);
+    void receiveMsg(QByteArray data);
+    void readPort();
 
 };
 
