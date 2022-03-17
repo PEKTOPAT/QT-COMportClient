@@ -23,6 +23,10 @@ public:
 private:
     Ui::CheckData *ui;
     QSerialPort *port;
+    QString command;
+    bool flagPackage;
+    bool flagChannel_1;
+    bool flagChannel_2;
 
 private slots:
     void openPort();
@@ -30,6 +34,8 @@ private slots:
     void setRate_slot(int rate);
     void receiveMsg(QByteArray data);
     void readPort();
+    void reset_Arduino();
+    void writePort(QByteArray data);
 
 };
 

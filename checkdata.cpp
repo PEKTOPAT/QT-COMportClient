@@ -9,8 +9,11 @@ CheckData::CheckData(QWidget *parent) :
     int num_port = QSerialPortInfo::availablePorts().length();
     for(int i = 0; i < num_port; i++)
     {
-       ui->comboBox->addItem(QSerialPortInfo::availablePorts().at(i).portName());
+        ui->comboBox->addItem(QSerialPortInfo::availablePorts().at(i).portName());
     }
+    flagPackage = false;
+    flagChannel_1 = false;
+    flagChannel_2 = false;
     port = new QSerialPort(this);
     ui->comboBox_2->addItem("9600");
     ui->comboBox_2->addItem("19200");
@@ -28,6 +31,7 @@ CheckData::CheckData(QWidget *parent) :
     connect(ui->push_disconnect,SIGNAL(clicked()),this, SLOT(closePort()));
     connect(ui->comboBox_2, SIGNAL(currentIndexChanged(int)), this, SLOT(setRate_slot(int)));
     connect(port, SIGNAL(readyRead()), this, SLOT(readPort()));
+    connect(ui->push_reset, SIGNAL(clicked(bool)), this, SLOT(reset_Arduino()));
 }
 
 CheckData::~CheckData()
@@ -53,7 +57,7 @@ void CheckData::openPort()
     port->open(QIODevice::ReadWrite);
     if(port->isOpen())
     {
-        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + "-> Connected");
+        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Connected");
         ui->label_status->setText("Connected");
         ui->label_status->setStyleSheet("QLabel {font-weight: bold; color : green; }");
         ui->push_connect->setEnabled(false);
@@ -70,7 +74,7 @@ void CheckData::closePort()
     if(port->isOpen())
     {
         port->close();
-        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + "-> Disconnected");
+        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Disconnected");
         ui->label_status->setText("Disconnected");
         ui->label_status->setStyleSheet("QLabel {font-weight: bold; color : red; }");
         ui->push_connect->setEnabled(true);
@@ -89,5 +93,95 @@ void CheckData::readPort()
 {
     if (port->bytesAvailable() == 0) return;
     QByteArray data = port->readAll();
-    qDebug() << data;
+    if(data.size() == 0) return;
+    const QString tab = " ";
+    QString res;
+    for (int i = 0;i < data.size();i++)
+    {
+        res = res+QString("%1").arg(static_cast<quint8>(data.at(i)))+tab;
+    }
+    res.resize(res.length() - 1);
+    qDebug() << res;
+    if(!flagPackage)
+    {
+        if(res == "171")
+        {
+            flagPackage = true;
+            qDebug() << "Обнаружена посылка!";
+
+        }else ui->textEdit->append("Error detect marker!");
+    }
+    else
+    {
+        if(flagChannel_1)
+        {
+
+        }
+        else if (flagChannel_2)
+        {
+
+        }
+        else
+        if(res == "161")
+        {
+            ui->label_statusPort_1->setText("Working");
+            ui->label_rate_1->setText("2,4 KB/s");
+            flagChannel_1 = true;
+        }
+        else if (res == "162")
+        {
+            ui->label_statusPort_1->setText("Working");
+            ui->label_rate_1->setText("4,8 KB/s");
+            flagChannel_1 = true;
+        }
+        else if (res == "163")
+        {
+            ui->label_statusPort_1->setText("Working");
+            ui->label_rate_1->setText("9,6 KB/s");
+            flagChannel_1 = true;
+
+        }
+        else if (res == "196")
+        {
+            ui->label_statusPort_2->setText("Working");
+            ui->label_rate_2->setText("2,4 KB/s");
+            flagChannel_2 = true;
+
+        }
+        else if (res == "200")
+        {
+            ui->label_statusPort_2->setText("Working");
+            ui->label_rate_2->setText("4,8 KB/s");
+            flagChannel_2 = true;
+        }
+        else if (res == "204")
+        {
+            ui->label_statusPort_2->setText("Working");
+            ui->label_rate_2->setText("9,6 KB/s");
+            flagChannel_2 = true;
+        }
+        else
+        {
+            ui->textEdit->append("Not detect info channel!");
+        }
+    }
+
+}
+
+void CheckData::writePort(QByteArray data)
+{
+    port->write(data);
+}
+
+void CheckData::reset_Arduino()
+{
+    QByteArray msg;
+    msg.append(170);
+    if(port->isOpen())
+    {
+        writePort(msg);
+        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Reset");
+    }
+    else return;
+
 }
