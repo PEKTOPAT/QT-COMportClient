@@ -27,6 +27,8 @@ private:
     bool flagPackage;
     bool flagChannel_1;
     bool flagChannel_2;
+    bool flagNumPackage;
+    int numPackage;
 
 private slots:
     void openPort();

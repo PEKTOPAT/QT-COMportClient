@@ -12,8 +12,11 @@ CheckData::CheckData(QWidget *parent) :
         ui->comboBox->addItem(QSerialPortInfo::availablePorts().at(i).portName());
     }
     flagPackage = false;
+    flagNumPackage = false;
     flagChannel_1 = false;
     flagChannel_2 = false;
+    numPackage = 0;
+
     port = new QSerialPort(this);
     ui->comboBox_2->addItem("9600");
     ui->comboBox_2->addItem("19200");
@@ -53,6 +56,13 @@ void CheckData::openPort()
 {
     if(!port) return;
     if(port->isOpen()) port->close();
+
+    flagPackage = false;
+    flagNumPackage = false;
+    flagChannel_1 = false;
+    flagChannel_2 = false;
+    numPackage = 0;
+
     port->setPortName(ui->comboBox->currentText());
     port->open(QIODevice::ReadWrite);
     if(port->isOpen())
@@ -64,7 +74,7 @@ void CheckData::openPort()
         ui->push_disconnect->setEnabled(true);
         ui->label_info->setText(ui->comboBox->currentText() +" @ "+ ui->comboBox_2->currentText());
     }
-    else ui->textEdit->append("Port not open!");
+    else ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Port not open!");
 
 }
 
@@ -73,6 +83,7 @@ void CheckData::closePort()
     if (! port) return;
     if(port->isOpen())
     {
+
         port->close();
         ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Disconnected");
         ui->label_status->setText("Disconnected");
@@ -95,77 +106,203 @@ void CheckData::readPort()
     QByteArray data = port->readAll();
     if(data.size() == 0) return;
     const QString tab = " ";
-    QString res;
+    QString strData;
+    int intData;
+    intData = static_cast<quint8>(data.at(0));
     for (int i = 0;i < data.size();i++)
     {
-        res = res+QString("%1").arg(static_cast<quint8>(data.at(i)))+tab;
+        strData = strData+QString("%1").arg(intData)+tab;
     }
-    res.resize(res.length() - 1);
-    qDebug() << res;
+    strData.resize(strData.length() - 1);
+    qDebug() << strData;
     if(!flagPackage)
     {
-        if(res == "171")
+        if(strData == "171")
         {
             flagPackage = true;
             qDebug() << "Обнаружена посылка!";
 
         }else ui->textEdit->append("Error detect marker!");
     }
-    else
+    else if(numPackage == 0)
     {
-        if(flagChannel_1)
+        numPackage = intData;
+        flagNumPackage = true;
+        qDebug() << "Посылка номер" << intData;
+    }
+    else if(!flagNumPackage && numPackage == intData - 1)
+    {
+        numPackage++;
+        flagNumPackage = true;
+        qDebug() << "Посылка номер 2";
+    }
+    else if(!flagChannel_1 && !flagChannel_2)
+    {
+        if(strData == "161")
         {
-
-        }
-        else if (flagChannel_2)
-        {
-
-        }
-        else
-        if(res == "161")
-        {
-            ui->label_statusPort_1->setText("Working");
+            ui->label_statusPort_2->setText(" ");
+            ui->label_rate_2->setText(" ");
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("2,4 KB/s");
             flagChannel_1 = true;
         }
-        else if (res == "162")
+        else if (strData == "162")
         {
-            ui->label_statusPort_1->setText("Working");
+            ui->label_statusPort_2->setText(" ");
+            ui->label_rate_2->setText(" ");
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("4,8 KB/s");
             flagChannel_1 = true;
         }
-        else if (res == "163")
+        else if (strData == "163")
         {
-            ui->label_statusPort_1->setText("Working");
+            ui->label_statusPort_2->setText(" ");
+            ui->label_rate_2->setText(" ");
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("9,6 KB/s");
             flagChannel_1 = true;
 
         }
-        else if (res == "196")
+        else if (strData == "196")
         {
-            ui->label_statusPort_2->setText("Working");
+            ui->label_statusPort_1->setText(" ");
+            ui->label_rate_1->setText(" ");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_2 = true;
 
         }
-        else if (res == "200")
+        else if (strData == "200")
         {
-            ui->label_statusPort_2->setText("Working");
+            ui->label_statusPort_1->setText(" ");
+            ui->label_rate_1->setText(" ");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_2 = true;
         }
-        else if (res == "204")
+        else if (strData == "204")
         {
-            ui->label_statusPort_2->setText("Working");
+            ui->label_statusPort_1->setText(" ");
+            ui->label_rate_1->setText(" ");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("9,6 KB/s");
             flagChannel_2 = true;
         }
-        else
+        else if (strData == "229")
         {
-            ui->textEdit->append("Not detect info channel!");
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_rate_1->setText("2,4 KB/s");
+            ui->label_rate_2->setText("2,4 KB/s");
+            flagChannel_1 = true;
+            flagChannel_2 = true;
+        }
+        else if (strData == "230")
+        {
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_rate_1->setText("2,4 KB/s");
+            ui->label_rate_2->setText("4,8 KB/s");
+            flagChannel_1 = true;
+            flagChannel_2 = true;
+        }
+        else if (strData == "231")
+        {
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_rate_1->setText("2,4 KB/s");
+            ui->label_rate_2->setText("9,6 KB/s");
+            flagChannel_1 = true;
+            flagChannel_2 = true;
+        }
+        else if (strData == "233")
+        {
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_rate_1->setText("4,8 KB/s");
+            ui->label_rate_2->setText("2,4 KB/s");
+            flagChannel_1 = true;
+            flagChannel_2 = true;
+        }
+        else if (strData == "234")
+        {
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_rate_1->setText("4,8 KB/s");
+            ui->label_rate_2->setText("4,8 KB/s");
+            flagChannel_1 = true;
+            flagChannel_2 = true;
+        }
+        else if (strData == "235")
+        {
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_rate_1->setText("4,8 KB/s");
+            ui->label_rate_2->setText("9,6 KB/s");
+            flagChannel_1 = true;
+            flagChannel_2 = true;
+        }
+        else if (strData == "237")
+        {
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_rate_1->setText("9,6 KB/s");
+            ui->label_rate_2->setText("2,4 KB/s");
+            flagChannel_1 = true;
+            flagChannel_2 = true;
+        }
+        else if (strData == "238")
+        {
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_rate_1->setText("9,6 KB/s");
+            ui->label_rate_2->setText("4,8 KB/s");
+            flagChannel_1 = true;
+            flagChannel_2 = true;
+        }
+        else if (strData == "239")
+        {
+            ui->label_statusPort_1->setText("Up");
+            ui->label_statusPort_2->setText("Up");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+            ui->label_rate_1->setText("9,6 KB/s");
+            ui->label_rate_2->setText("9,6 KB/s");
+            flagChannel_1 = true;
+            flagChannel_2 = true;
+        }
+        else if (strData == "128")
+        {
+            ui->label_statusPort_1->setText(" ");
+            ui->label_statusPort_2->setText(" ");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+            ui->label_rate_1->setText(" ");
+            ui->label_rate_2->setText(" ");
         }
     }
-
 }
 
 void CheckData::writePort(QByteArray data)
@@ -180,7 +317,7 @@ void CheckData::reset_Arduino()
     if(port->isOpen())
     {
         writePort(msg);
-        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Reset");
+        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> reset");
     }
     else return;
 
