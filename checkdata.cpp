@@ -303,6 +303,17 @@ void CheckData::readPort()
             ui->label_rate_2->setText(" ");
         }
     }
+    else if (flagChannel_1)
+    {
+        Channel1.append(strData);
+        flagChannel_1 = false;
+    }
+    else if (flagChannel_2 )
+    {
+
+        Channel2.append(strData);
+        flagChannel_2 = false;
+    }
 }
 
 void CheckData::writePort(QByteArray data)

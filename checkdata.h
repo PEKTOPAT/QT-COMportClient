@@ -29,6 +29,9 @@ private:
     bool flagChannel_2;
     bool flagNumPackage;
     int numPackage;
+    QString Channel1;
+    QString Channel2;
+
 
 private slots:
     void openPort();
