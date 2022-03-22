@@ -29,6 +29,7 @@ private:
     bool flagChannel_2;
     bool flagNumPackage;
     int numPackage;
+    int numByte;
     QString Channel1;
     QString Channel2;
 
@@ -37,10 +38,10 @@ private slots:
     void openPort();
     void closePort();
     void setRate_slot(int rate);
-    void receiveMsg(QByteArray data);
-    void readPort();
     void reset_Arduino();
+    void parsingPackage(QByteArray data);
     void writePort(QByteArray data);
+    QByteArray readPort();
 
 };
 

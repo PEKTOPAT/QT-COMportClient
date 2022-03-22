@@ -1,6 +1,7 @@
 #include "checkdata.h"
 #include "ui_checkdata.h"
 
+//******************************************************************************
 CheckData::CheckData(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CheckData)
@@ -16,6 +17,7 @@ CheckData::CheckData(QWidget *parent) :
     flagChannel_1 = false;
     flagChannel_2 = false;
     numPackage = 0;
+    numByte = 0;
 
     port = new QSerialPort(this);
     ui->comboBox_2->addItem("9600");
@@ -36,13 +38,14 @@ CheckData::CheckData(QWidget *parent) :
     connect(port, SIGNAL(readyRead()), this, SLOT(readPort()));
     connect(ui->push_reset, SIGNAL(clicked(bool)), this, SLOT(reset_Arduino()));
 }
-
 CheckData::~CheckData()
 {
     delete ui;
-
     delete port;
 }
+//******************************************************************************
+//******************************************************************************
+//******************************************************************************
 void CheckData::setRate_slot(int rate)
 {
     if(rate == 0) port->setBaudRate(QSerialPort::Baud9600);
@@ -51,7 +54,7 @@ void CheckData::setRate_slot(int rate)
     else if (rate == 3) port->setBaudRate(QSerialPort::Baud57600);
     else if (rate == 4) port->setBaudRate(QSerialPort::Baud115200);
 }
-
+//******************************************************************************
 void CheckData::openPort()
 {
     if(!port) return;
@@ -62,6 +65,7 @@ void CheckData::openPort()
     flagChannel_1 = false;
     flagChannel_2 = false;
     numPackage = 0;
+    numByte = 0;
 
     port->setPortName(ui->comboBox->currentText());
     port->open(QIODevice::ReadWrite);
@@ -77,7 +81,7 @@ void CheckData::openPort()
     else ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Port not open!");
 
 }
-
+//******************************************************************************
 void CheckData::closePort()
 {
     if (! port) return;
@@ -94,49 +98,55 @@ void CheckData::closePort()
     else return;
 
 }
-
-void CheckData::receiveMsg(QByteArray data)
+//******************************************************************************
+QByteArray CheckData::readPort()
 {
-
+    QByteArray data;
+    if (port->bytesAvailable() == 0) return data;
+    data = port->readAll();
+    parsingPackage(data);
+    return data;
 }
 
-void CheckData::readPort()
+void CheckData::parsingPackage(QByteArray data)
 {
-    if (port->bytesAvailable() == 0) return;
-    QByteArray data = port->readAll();
     if(data.size() == 0) return;
     const QString tab = " ";
     QString strData;
     int intData;
+    qDebug() << "DEBUG numByte" << numByte;
     intData = static_cast<quint8>(data.at(0));
     for (int i = 0;i < data.size();i++)
     {
         strData = strData+QString("%1").arg(intData)+tab;
     }
     strData.resize(strData.length() - 1);
-    qDebug() << strData;
-    if(!flagPackage)
+    qDebug() <<"DEBUG recieve msg"<< strData;
+    if(!flagPackage && numByte == 0)
     {
         if(strData == "171")
         {
             flagPackage = true;
+            numByte = 1;
             qDebug() << "Обнаружена посылка!";
 
         }else ui->textEdit->append("Error detect marker!");
     }
-    else if(numPackage == 0)
+    else if(numPackage == 0 && numByte == 1)
     {
         numPackage = intData;
         flagNumPackage = true;
+        numByte = 2;
         qDebug() << "Посылка номер" << intData;
     }
-    else if(!flagNumPackage && numPackage == intData - 1)
+    else if(!flagNumPackage && numPackage == intData - 1 && numByte == 1)
     {
         numPackage++;
         flagNumPackage = true;
-        qDebug() << "Посылка номер 2";
+        numByte = 2;
+        qDebug() << "Посылка номер " << numPackage;
     }
-    else if(!flagChannel_1 && !flagChannel_2)
+    else if(!flagChannel_1 && !flagChannel_2 && numByte == 2)
     {
         if(strData == "161")
         {
@@ -146,6 +156,7 @@ void CheckData::readPort()
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("2,4 KB/s");
             flagChannel_1 = true;
+            numByte = 3;
         }
         else if (strData == "162")
         {
@@ -155,6 +166,7 @@ void CheckData::readPort()
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("4,8 KB/s");
             flagChannel_1 = true;
+            numByte = 3;
         }
         else if (strData == "163")
         {
@@ -164,6 +176,7 @@ void CheckData::readPort()
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("9,6 KB/s");
             flagChannel_1 = true;
+            numByte = 3;
 
         }
         else if (strData == "196")
@@ -174,6 +187,7 @@ void CheckData::readPort()
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_2 = true;
+            numByte = 3;
 
         }
         else if (strData == "200")
@@ -184,6 +198,7 @@ void CheckData::readPort()
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_2 = true;
+            numByte = 3;
         }
         else if (strData == "204")
         {
@@ -193,6 +208,7 @@ void CheckData::readPort()
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("9,6 KB/s");
             flagChannel_2 = true;
+            numByte = 3;
         }
         else if (strData == "229")
         {
@@ -204,6 +220,7 @@ void CheckData::readPort()
             ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
+            numByte = 3;
         }
         else if (strData == "230")
         {
@@ -215,6 +232,7 @@ void CheckData::readPort()
             ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
+            numByte = 3;
         }
         else if (strData == "231")
         {
@@ -226,6 +244,7 @@ void CheckData::readPort()
             ui->label_rate_2->setText("9,6 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
+            numByte = 3;
         }
         else if (strData == "233")
         {
@@ -237,6 +256,7 @@ void CheckData::readPort()
             ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
+            numByte = 3;
         }
         else if (strData == "234")
         {
@@ -248,6 +268,7 @@ void CheckData::readPort()
             ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
+            numByte = 3;
         }
         else if (strData == "235")
         {
@@ -259,6 +280,7 @@ void CheckData::readPort()
             ui->label_rate_2->setText("9,6 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
+            numByte = 3;
         }
         else if (strData == "237")
         {
@@ -270,6 +292,7 @@ void CheckData::readPort()
             ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
+            numByte = 3;
         }
         else if (strData == "238")
         {
@@ -281,6 +304,7 @@ void CheckData::readPort()
             ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
+            numByte = 3;
         }
         else if (strData == "239")
         {
@@ -292,6 +316,7 @@ void CheckData::readPort()
             ui->label_rate_2->setText("9,6 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
+            numByte = 3;
         }
         else if (strData == "128")
         {
@@ -301,26 +326,43 @@ void CheckData::readPort()
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
             ui->label_rate_1->setText(" ");
             ui->label_rate_2->setText(" ");
-        }
+            numByte = 3;
+        }else ui->textEdit->append("Error synchronization!");
     }
-    else if (flagChannel_1)
+    else if (flagChannel_1 && numByte == 3)
     {
         Channel1.append(strData);
+        qDebug() << "Запись с первого канала" << Channel1;
         flagChannel_1 = false;
+        numByte = 4;
     }
-    else if (flagChannel_2 )
+    else if (!flagChannel_1 && numByte == 3)
+    {
+         numByte = 4;
+    }
+    else if (flagChannel_2 &&  numByte == 4)
     {
 
         Channel2.append(strData);
+        qDebug() << "Запись со второго канала" << Channel2;
         flagChannel_2 = false;
     }
-}
+    else if (!flagChannel_2 &&  numByte == 4)
+    {
+        flagPackage = false;
+        flagNumPackage = false;
+        flagChannel_1 = false;
+        flagChannel_2 = false;
+        numByte = 0;
+    }else ui->textEdit->append("Error 777");
 
+}
+//******************************************************************************
 void CheckData::writePort(QByteArray data)
 {
     port->write(data);
 }
-
+//******************************************************************************
 void CheckData::reset_Arduino()
 {
     QByteArray msg;
@@ -331,5 +373,5 @@ void CheckData::reset_Arduino()
         ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> reset");
     }
     else return;
-
 }
+//******************************************************************************
