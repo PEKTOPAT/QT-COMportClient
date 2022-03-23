@@ -4,9 +4,6 @@
 #include <QMainWindow>
 #include <QSerialPort>
 #include <QSerialPortInfo>
-#include <QDebug>
-#include <QTime>
-
 
 namespace Ui {
 class CheckData;
@@ -30,8 +27,10 @@ private:
     bool flagNumPackage;
     int numPackage;
     int numByte;
-    QString Channel1;
-    QString Channel2;
+    QVector <QString> vChannel1;
+    QVector <QString> vChannel2;
+    QVector <QString> vPattern;
+
 
 
 private slots:
@@ -42,6 +41,8 @@ private slots:
     void parsingPackage(QByteArray data);
     void writePort(QByteArray data);
     QByteArray readPort();
+    void openPatternFile();
+    void validitySignal(QVector <QString> syncInfo,  QString receive_Byte);
 
 };
 

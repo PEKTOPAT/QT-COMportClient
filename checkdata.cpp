@@ -1,6 +1,11 @@
 #include "checkdata.h"
 #include "ui_checkdata.h"
 
+#include <QFileDialog>
+#include <QDebug>
+#include <QTime>
+
+
 //******************************************************************************
 CheckData::CheckData(QWidget *parent) :
     QMainWindow(parent),
@@ -37,6 +42,7 @@ CheckData::CheckData(QWidget *parent) :
     connect(ui->comboBox_2, SIGNAL(currentIndexChanged(int)), this, SLOT(setRate_slot(int)));
     connect(port, SIGNAL(readyRead()), this, SLOT(readPort()));
     connect(ui->push_reset, SIGNAL(clicked(bool)), this, SLOT(reset_Arduino()));
+    connect(ui->push_download, SIGNAL(clicked(bool)), this, SLOT(openPatternFile()));
 }
 CheckData::~CheckData()
 {
@@ -114,7 +120,7 @@ void CheckData::parsingPackage(QByteArray data)
     const QString tab = " ";
     QString strData;
     int intData;
-    qDebug() << "DEBUG numByte" << numByte;
+    qDebug() << "DEBUG  " << numByte;
     intData = static_cast<quint8>(data.at(0));
     for (int i = 0;i < data.size();i++)
     {
@@ -331,20 +337,20 @@ void CheckData::parsingPackage(QByteArray data)
     }
     else if (flagChannel_1 && numByte == 3)
     {
-        Channel1.append(strData);
-        qDebug() << "Запись с первого канала" << Channel1;
+        vChannel1.append(strData);
+        qDebug() << "Запись с первого канала" << vChannel1;
         flagChannel_1 = false;
         numByte = 4;
     }
     else if (!flagChannel_1 && numByte == 3)
     {
-         numByte = 4;
+        numByte = 4;
     }
     else if (flagChannel_2 &&  numByte == 4)
     {
 
-        Channel2.append(strData);
-        qDebug() << "Запись со второго канала" << Channel2;
+        vChannel2.append(strData);
+        qDebug() << "Запись со второго канала" << vChannel2;
         flagChannel_2 = false;
     }
     else if (!flagChannel_2 &&  numByte == 4)
@@ -355,13 +361,47 @@ void CheckData::parsingPackage(QByteArray data)
         flagChannel_2 = false;
         numByte = 0;
     }else ui->textEdit->append("Error 777");
+    if(vChannel1.size() == 6)
+    {
+        if(vPattern.size() == 0)
+        {
+            ui->textEdit->append("Error, not download file!");
+        }
+        else
+        {
+            if(vChannel1.size() == 6 && vPattern.size() != 0) validitySignal(vChannel1, "");
 
+        }
+    }
 }
 //******************************************************************************
 void CheckData::writePort(QByteArray data)
 {
     port->write(data);
 }
+//******************************************************************************
+void CheckData::openPatternFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if(fileName.isEmpty()) return;
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
+    QTextStream in(&file);
+
+    while(!in.atEnd())
+    {
+        QString line = in.read(1);
+        vPattern.append(line);
+        qDebug() << "__" << line;
+    }
+    file.close();
+}
+//******************************************************************************
+void CheckData::validitySignal(QVector <QString> syncInfo,  QString receive_Byte)
+{
+
+}
+
 //******************************************************************************
 void CheckData::reset_Arduino()
 {
