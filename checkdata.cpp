@@ -23,6 +23,8 @@ CheckData::CheckData(QWidget *parent) :
     flagChannel_2 = false;
     numPackage = 0;
     numByte = 0;
+    flagSyncFile_1 = false;
+    flagSyncFile_2 = false;
 
     port = new QSerialPort(this);
     ui->comboBox_2->addItem("9600");
@@ -72,6 +74,11 @@ void CheckData::openPort()
     flagChannel_2 = false;
     numPackage = 0;
     numByte = 0;
+    flagSyncFile_1 = false;
+    flagSyncFile_2 = false;
+    Channel1.clear();
+    Channel2.clear();
+    VPattern.clear();
 
     port->setPortName(ui->comboBox->currentText());
     port->open(QIODevice::ReadWrite);
@@ -102,7 +109,6 @@ void CheckData::closePort()
         ui->push_disconnect->setEnabled(false);
     }
     else return;
-
 }
 //******************************************************************************
 QByteArray CheckData::readPort()
@@ -136,7 +142,16 @@ void CheckData::parsingPackage(QByteArray data)
             numByte = 1;
             qDebug() << "Обнаружена посылка!";
 
-        }else ui->textEdit->append("Error detect marker!");
+        }else
+        {
+            ui->label_statusPort_1->setText(" ");
+            ui->label_statusPort_2->setText(" ");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+            ui->label_rate_1->setText(" ");
+            ui->label_rate_2->setText(" ");
+            ui->textEdit->append("Error detect marker!");
+        }
     }
     else if(numPackage == 0 && numByte == 1)
     {
@@ -333,12 +348,37 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_rate_1->setText(" ");
             ui->label_rate_2->setText(" ");
             numByte = 3;
-        }else ui->textEdit->append("Error synchronization!");
+        }else
+        {
+            ui->label_statusPort_1->setText(" ");
+            ui->label_statusPort_2->setText(" ");
+            ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+            ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+            ui->label_rate_1->setText(" ");
+            ui->label_rate_2->setText(" ");
+            ui->textEdit->append("Error synchronization!");
+        }
     }
+    //to ASCII
     else if (flagChannel_1 && numByte == 3)
     {
-        vChannel1.append(strData);
-        qDebug() << "Запись с первого канала" << vChannel1;
+        strData.clear();
+        for (int i = 0; i < data.size();i++)
+            switch (data.at(i))
+            {
+            case 0:
+                strData += "\'0\'";
+                break;
+            default:
+                strData += data[i];
+            }
+        Channel1.append(strData);
+        qDebug() << "Запись с первого канала" << Channel1;
+        QFile file_ch1("file_ch1.txt");
+        if (file_ch1.open(QIODevice::WriteOnly | QIODevice::Append)) {
+            file_ch1.write(data);
+            file_ch1.close();
+        }else {qDebug() << "fff"; return;}
         flagChannel_1 = false;
         numByte = 4;
     }
@@ -346,31 +386,44 @@ void CheckData::parsingPackage(QByteArray data)
     {
         numByte = 4;
     }
+    //to ASCII
     else if (flagChannel_2 &&  numByte == 4)
     {
-
-        vChannel2.append(strData);
-        qDebug() << "Запись со второго канала" << vChannel2;
-        flagChannel_2 = false;
-    }
-    else if (!flagChannel_2 &&  numByte == 4)
-    {
+        strData.clear();
+        for (int i = 0; i < data.size();i++)
+            switch (data.at(i))
+            {
+            case 0:
+                strData += "\'0\'";
+                break;
+            default:
+                strData += data[i];
+            }
+        Channel2.append(strData);
+        qDebug() << "Запись со второго канала" << Channel2;
         flagPackage = false;
         flagNumPackage = false;
         flagChannel_1 = false;
         flagChannel_2 = false;
         numByte = 0;
-    }else ui->textEdit->append("Error 777");
-    if(vChannel1.size() == 6)
+    }
+    else
     {
-        if(vPattern.size() == 0)
+        ui->label_statusPort_1->setText(" ");
+        ui->label_statusPort_2->setText(" ");
+        ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+        ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+        ui->label_rate_1->setText(" ");
+        ui->label_rate_2->setText(" ");
+        ui->textEdit->append("Error");
+    }
+    if(!flagSyncFile_1)
+    {
+        if(Channel1.size() == 2 && Channel1 == "ma")
         {
-            ui->textEdit->append("Error, not download file!");
-        }
-        else
-        {
-            if(vChannel1.size() == 6 && vPattern.size() != 0) validitySignal(vChannel1, "");
-
+            flagSyncFile_1 = true;
+            if(VPattern.size() != 0) validitySignal(Channel1, "");
+            else ui->textEdit->append("Error, not download file!");
         }
     }
 }
@@ -382,24 +435,34 @@ void CheckData::writePort(QByteArray data)
 //******************************************************************************
 void CheckData::openPatternFile()
 {
+    VPattern.clear();
     QString fileName = QFileDialog::getOpenFileName(this);
-    if(fileName.isEmpty()) return;
+    if(fileName.isEmpty())
+    {
+        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> File isEmpty");
+        return;
+    }
     QFile file(fileName);
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
-    QTextStream in(&file);
 
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> File not open");
+        return;
+    }else ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> File load");
+    QTextStream in(&file);
+    QString line = in.readLine();
+    VPattern.append(line);
     while(!in.atEnd())
     {
-        QString line = in.read(1);
-        vPattern.append(line);
-        qDebug() << "__" << line;
+        QString line = in.readLine();
+        VPattern.append(line);
     }
     file.close();
 }
 //******************************************************************************
-void CheckData::validitySignal(QVector <QString> syncInfo,  QString receive_Byte)
+void CheckData::validitySignal(QString syncInfo,  QString receive_Byte)
 {
-
+    qDebug() << "Ура";
 }
 
 //******************************************************************************
