@@ -125,15 +125,15 @@ void CheckData::parsingPackage(QByteArray data)
     if(data.size() == 0) return;
     const QString tab = " ";
     QString strData;
-    int intData;
-    qDebug() << "DEBUG  " << numByte;
-    intData = static_cast<quint8>(data.at(0));
+    qDebug() << "Номер посылки " << numByte;
+    int intData = static_cast<quint8>(data.at(0));
     for (int i = 0;i < data.size();i++)
     {
         strData = strData+QString("%1").arg(intData)+tab;
     }
     strData.resize(strData.length() - 1);
-    qDebug() <<"DEBUG recieve msg"<< strData;
+    qDebug() <<"Полученное сообщение "<< strData;
+    //Байт маркера начала посылки
     if(!flagPackage && numByte == 0)
     {
         if(strData == "171")
@@ -153,6 +153,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->textEdit->append("Error detect marker!");
         }
     }
+    //Байт номер посылки (самой первой пойманной)
     else if(numPackage == 0 && numByte == 1)
     {
         numPackage = intData;
@@ -160,6 +161,7 @@ void CheckData::parsingPackage(QByteArray data)
         numByte = 2;
         qDebug() << "Посылка номер" << intData;
     }
+    //Байт номера последюущих посылок, проверка на последовательность данных
     else if(!flagNumPackage && numPackage == intData - 1 && numByte == 1)
     {
         numPackage++;
@@ -167,6 +169,7 @@ void CheckData::parsingPackage(QByteArray data)
         numByte = 2;
         qDebug() << "Посылка номер " << numPackage;
     }
+    //Байт синхронизации
     else if(!flagChannel_1 && !flagChannel_2 && numByte == 2)
     {
         if(strData == "161")
@@ -356,55 +359,30 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
             ui->label_rate_1->setText(" ");
             ui->label_rate_2->setText(" ");
-            ui->textEdit->append("Error synchronization!");
         }
     }
-    //to ASCII
+    //Если получен 3 байт и поднят флаг информации 0-го, то происходит запись инф
     else if (flagChannel_1 && numByte == 3)
     {
-        strData.clear();
-        for (int i = 0; i < data.size();i++)
-            switch (data.at(i))
-            {
-            case 0:
-                strData += "\'0\'";
-                break;
-            default:
-                strData += data[i];
-            }
-        Channel1.append(strData);
+        Channel1.append(data);
         qDebug() << "Запись с первого канала" << Channel1;
-        QFile file_ch1("file_ch1.txt");
-        if (file_ch1.open(QIODevice::WriteOnly | QIODevice::Append)) {
-            file_ch1.write(data);
-            file_ch1.close();
-        }else {qDebug() << "fff"; return;}
-        flagChannel_1 = false;
+        writeReceiveMSG(1, data);
         numByte = 4;
     }
+    //Если получе 3-ий байт и флаг не выставлен, записи нет, увеличиваем байт
     else if (!flagChannel_1 && numByte == 3)
     {
         numByte = 4;
     }
-    //to ASCII
+    //Если получен 4-ый байт и поднят флаг информации 1-го, то происходит запись инф и
+    //перевод флагов в false на ожидание прихода следующего байта
     else if (flagChannel_2 &&  numByte == 4)
     {
-        strData.clear();
-        for (int i = 0; i < data.size();i++)
-            switch (data.at(i))
-            {
-            case 0:
-                strData += "\'0\'";
-                break;
-            default:
-                strData += data[i];
-            }
-        Channel2.append(strData);
+        Channel2.append(data);
         qDebug() << "Запись со второго канала" << Channel2;
+        writeReceiveMSG(1, data);
         flagPackage = false;
         flagNumPackage = false;
-        flagChannel_1 = false;
-        flagChannel_2 = false;
         numByte = 0;
     }
     else
@@ -415,16 +393,31 @@ void CheckData::parsingPackage(QByteArray data)
         ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
         ui->label_rate_1->setText(" ");
         ui->label_rate_2->setText(" ");
-        ui->textEdit->append("Error");
+        ui->textEdit->append("Error read info");
+        flagPackage = false;
+        flagNumPackage = false;
+        numByte = 0;
     }
-    if(!flagSyncFile_1)
+    qDebug() << "Info channel" << Channel1;
+    //Если успешно получено n-е количество посылок равное размеру маркера, пробуем синхронизироваться
+    //Успех полученноного байта в виде опушенного флага пакета и поднятого флага канала и размера накопленной части = размеру маркера.
+    if(!flagPackage && flagChannel_1 && Channel1.size() == 2)
     {
-        if(Channel1.size() == 2 && Channel1 == "ma")
+        if(VPattern.size() != 0)
         {
-            flagSyncFile_1 = true;
-            if(VPattern.size() != 0) validitySignal(Channel1, "");
-            else ui->textEdit->append("Error, not download file!");
+            if(Channel1 == VPattern[0])
+            {
+                flagSyncFile_1 = true;
+            }else Channel1.remove(0,1);
+        }else
+        {
+            ui->textEdit->append("File pattern error");
+
         }
+    }
+    else if (!flagPackage && flagChannel_1 && Channel1.size() == 2)
+    {
+        
     }
 }
 //******************************************************************************
@@ -433,6 +426,22 @@ void CheckData::writePort(QByteArray data)
     port->write(data);
 }
 //******************************************************************************
+void CheckData::writeReceiveMSG(int numChannel, QByteArray msg)
+{
+    QString nameFile = QString("file_%1.txt").arg(QString::number(numChannel));
+    QFile file_ch1(nameFile);
+    if (file_ch1.open(QIODevice::WriteOnly | QIODevice::Append))
+    {
+        file_ch1.write(msg);
+        file_ch1.close();
+    }else
+    {
+        ui->textEdit->append("File write error");
+        return;
+    }
+}
+//******************************************************************************
+
 void CheckData::openPatternFile()
 {
     VPattern.clear();
@@ -460,9 +469,9 @@ void CheckData::openPatternFile()
     file.close();
 }
 //******************************************************************************
-void CheckData::validitySignal(QString syncInfo,  QString receive_Byte)
+void CheckData::validitySignal(QString syncInfo, QString receive_Byte)
 {
-    qDebug() << "Ура";
+
 }
 
 //******************************************************************************
@@ -470,6 +479,7 @@ void CheckData::reset_Arduino()
 {
     QByteArray msg;
     msg.append(170);
+
     if(port->isOpen())
     {
         writePort(msg);

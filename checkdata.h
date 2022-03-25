@@ -45,6 +45,7 @@ private slots:
     QByteArray readPort();
     void openPatternFile();
     void validitySignal(QString syncInfo,  QString receive_Byte);
+    void writeReceiveMSG(int numChannel, QByteArray msg);
 
 };
 
