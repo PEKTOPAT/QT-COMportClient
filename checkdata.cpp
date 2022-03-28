@@ -22,7 +22,7 @@ CheckData::CheckData(QWidget *parent) :
     flagChannel_1 = false;
     flagChannel_2 = false;
     numPackage = 0;
-    numByte = 0;
+    numBit = 0;
     flagSyncFile_1 = false;
     flagSyncFile_2 = false;
 
@@ -73,7 +73,7 @@ void CheckData::openPort()
     flagChannel_1 = false;
     flagChannel_2 = false;
     numPackage = 0;
-    numByte = 0;
+    numBit = 0;
     flagSyncFile_1 = false;
     flagSyncFile_2 = false;
     Channel1.clear();
@@ -125,7 +125,7 @@ void CheckData::parsingPackage(QByteArray data)
     if(data.size() == 0) return;
     const QString tab = " ";
     QString strData;
-    qDebug() << "Номер посылки " << numByte;
+    qDebug() << "Бит -  " << numBit;
     int intData = static_cast<quint8>(data.at(0));
     for (int i = 0;i < data.size();i++)
     {
@@ -134,12 +134,12 @@ void CheckData::parsingPackage(QByteArray data)
     strData.resize(strData.length() - 1);
     qDebug() <<"Полученное сообщение "<< strData;
     //Байт маркера начала посылки
-    if(!flagPackage && numByte == 0)
+    if(!flagPackage && numBit == 0)
     {
         if(strData == "171")
         {
             flagPackage = true;
-            numByte = 1;
+            numBit = 1;
             qDebug() << "Обнаружена посылка!";
 
         }else
@@ -154,23 +154,24 @@ void CheckData::parsingPackage(QByteArray data)
         }
     }
     //Байт номер посылки (самой первой пойманной)
-    else if(numPackage == 0 && numByte == 1)
+    else if(numPackage == 0 && numBit == 1)
     {
         numPackage = intData;
         flagNumPackage = true;
-        numByte = 2;
+        numBit = 2;
         qDebug() << "Посылка номер" << intData;
     }
     //Байт номера последюущих посылок, проверка на последовательность данных
-    else if(!flagNumPackage && numPackage == intData - 1 && numByte == 1)
+    else if(!flagNumPackage && numPackage == intData - 1 && numBit == 1)
     {
         numPackage++;
         flagNumPackage = true;
-        numByte = 2;
+        numBit = 2;
         qDebug() << "Посылка номер " << numPackage;
+        qDebug() << flagChannel_1 << flagChannel_2;
     }
     //Байт синхронизации
-    else if(!flagChannel_1 && !flagChannel_2 && numByte == 2)
+    else if(!flagChannel_1 && !flagChannel_2 && numBit == 2)
     {
         if(strData == "161")
         {
@@ -180,7 +181,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("2,4 KB/s");
             flagChannel_1 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "162")
         {
@@ -190,7 +191,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("4,8 KB/s");
             flagChannel_1 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "163")
         {
@@ -200,7 +201,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("9,6 KB/s");
             flagChannel_1 = true;
-            numByte = 3;
+            numBit = 3;
 
         }
         else if (strData == "196")
@@ -211,7 +212,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
 
         }
         else if (strData == "200")
@@ -222,7 +223,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "204")
         {
@@ -232,7 +233,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("9,6 KB/s");
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "229")
         {
@@ -244,7 +245,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "230")
         {
@@ -256,7 +257,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "231")
         {
@@ -268,7 +269,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_rate_2->setText("9,6 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "233")
         {
@@ -280,7 +281,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "234")
         {
@@ -292,7 +293,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "235")
         {
@@ -304,7 +305,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_rate_2->setText("9,6 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "237")
         {
@@ -316,7 +317,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "238")
         {
@@ -328,7 +329,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "239")
         {
@@ -340,7 +341,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_rate_2->setText("9,6 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
-            numByte = 3;
+            numBit = 3;
         }
         else if (strData == "128")
         {
@@ -350,7 +351,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
             ui->label_rate_1->setText(" ");
             ui->label_rate_2->setText(" ");
-            numByte = 3;
+            numBit = 3;
         }else
         {
             ui->label_statusPort_1->setText(" ");
@@ -359,31 +360,87 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
             ui->label_rate_1->setText(" ");
             ui->label_rate_2->setText(" ");
+            ui->textEdit->append("Error sync. Wait for marker");
+            flagPackage = false;
+            flagNumPackage = false;
+            numBit = 0;
         }
     }
     //Если получен 3 байт и поднят флаг информации 0-го, то происходит запись инф
-    else if (flagChannel_1 && numByte == 3)
+    else if (flagChannel_1 && numBit == 3)
     {
         Channel1.append(data);
         qDebug() << "Запись с первого канала" << Channel1;
         writeReceiveMSG(1, data);
-        numByte = 4;
+        numBit = 4;
     }
     //Если получе 3-ий байт и флаг не выставлен, записи нет, увеличиваем байт
-    else if (!flagChannel_1 && numByte == 3)
+    else if (!flagChannel_1 && numBit == 3)
     {
-        numByte = 4;
+        numBit = 4;
     }
     //Если получен 4-ый байт и поднят флаг информации 1-го, то происходит запись инф и
     //перевод флагов в false на ожидание прихода следующего байта
-    else if (flagChannel_2 &&  numByte == 4)
+    else if (numBit == 4)
     {
-        Channel2.append(data);
-        qDebug() << "Запись со второго канала" << Channel2;
-        writeReceiveMSG(1, data);
-        flagPackage = false;
-        flagNumPackage = false;
-        numByte = 0;
+        if(flagChannel_2)
+        {
+            Channel2.append(data);
+            qDebug() << "Запись со второго канала" << Channel2;
+            writeReceiveMSG(2, data);
+            flagPackage = false;
+            flagNumPackage = false;
+            numBit = 0;
+        }
+        else
+        {
+            flagPackage = false;
+            flagNumPackage = false;
+            numBit = 0;
+        }
+        if(VPattern.size() != 0)
+        {
+           if(Channel1.size() == 2)
+           {
+               if(Channel1 == VPattern[0])
+               {
+                   flagSyncFile_1 = true;
+                   flagChannel_1 = false;
+                   flagChannel_2 = false;
+                   validitySignal(Channel1);
+
+               }else
+               {
+                   Channel1.remove(0,1);
+                   flagChannel_1 = false;
+                   flagChannel_2 = false;
+               }
+           }
+           else if (Channel1.size() == 2)
+           {
+               if(Channel2 == VPattern[0])
+               {
+                   flagSyncFile_2 = true;
+                   flagChannel_1 = false;
+                   flagChannel_2 = false;
+                   validitySignal(Channel2);
+               }else
+               {
+                   Channel2.remove(0,1);
+                   flagChannel_1 = false;
+                   flagChannel_2 = false;
+               }
+           }else
+           {
+               flagChannel_1 = false;
+               flagChannel_2 = false;
+           }
+        }
+        else
+        {
+
+            ui->textEdit->append("Control file error");
+        }
     }
     else
     {
@@ -396,29 +453,15 @@ void CheckData::parsingPackage(QByteArray data)
         ui->textEdit->append("Error read info");
         flagPackage = false;
         flagNumPackage = false;
-        numByte = 0;
+        numBit = 0;
+        flagChannel_1 = false;
+        flagChannel_2 = false;
     }
-    qDebug() << "Info channel" << Channel1;
-    //Если успешно получено n-е количество посылок равное размеру маркера, пробуем синхронизироваться
-    //Успех полученноного байта в виде опушенного флага пакета и поднятого флага канала и размера накопленной части = размеру маркера.
-    if(!flagPackage && flagChannel_1 && Channel1.size() == 2)
-    {
-        if(VPattern.size() != 0)
-        {
-            if(Channel1 == VPattern[0])
-            {
-                flagSyncFile_1 = true;
-            }else Channel1.remove(0,1);
-        }else
-        {
-            ui->textEdit->append("File pattern error");
-
-        }
-    }
-    else if (!flagPackage && flagChannel_1 && Channel1.size() == 2)
-    {
-        
-    }
+}
+//******************************************************************************
+void CheckData::validitySignal(QByteArray syncInfo)
+{
+    qDebug() << "Hello nigga" << syncInfo;
 }
 //******************************************************************************
 void CheckData::writePort(QByteArray data)
@@ -467,11 +510,6 @@ void CheckData::openPatternFile()
         VPattern.append(line);
     }
     file.close();
-}
-//******************************************************************************
-void CheckData::validitySignal(QString syncInfo, QString receive_Byte)
-{
-
 }
 
 //******************************************************************************

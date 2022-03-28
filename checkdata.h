@@ -27,9 +27,9 @@ private:
     bool flagChannel_2;
     bool flagNumPackage;
     int numPackage;
-    int numByte;
-    QString Channel1;
-    QString Channel2;
+    int numBit;
+    QByteArray Channel1;
+    QByteArray Channel2;
     QVector <QString> VPattern;
     bool flagSyncFile_1;
     bool flagSyncFile_2;
@@ -44,7 +44,7 @@ private slots:
     void writePort(QByteArray data);
     QByteArray readPort();
     void openPatternFile();
-    void validitySignal(QString syncInfo,  QString receive_Byte);
+    void validitySignal(QByteArray syncInfo);
     void writeReceiveMSG(int numChannel, QByteArray msg);
 
 };
