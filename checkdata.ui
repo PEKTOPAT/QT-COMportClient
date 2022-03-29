@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>507</width>
-    <height>334</height>
+    <width>544</width>
+    <height>331</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -246,7 +246,7 @@
      <rect>
       <x>330</x>
       <y>10</y>
-      <width>171</width>
+      <width>201</width>
       <height>271</height>
      </rect>
     </property>
@@ -258,7 +258,7 @@
       <rect>
        <x>11</x>
        <y>80</y>
-       <width>151</width>
+       <width>181</width>
        <height>181</height>
       </rect>
      </property>
@@ -268,19 +268,19 @@
       <rect>
        <x>11</x>
        <y>21</y>
-       <width>68</width>
+       <width>71</width>
        <height>16</height>
       </rect>
      </property>
      <property name="text">
-      <string>Reset Arduino</string>
+      <string>Reset Arduino:</string>
      </property>
     </widget>
     <widget class="QPushButton" name="push_reset">
      <property name="geometry">
       <rect>
-       <x>85</x>
-       <y>21</y>
+       <x>120</x>
+       <y>20</y>
        <width>75</width>
        <height>23</height>
       </rect>
@@ -358,7 +358,7 @@
      </rect>
     </property>
     <property name="title">
-     <string>File download</string>
+     <string>Files</string>
     </property>
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
@@ -366,21 +366,35 @@
        <x>10</x>
        <y>20</y>
        <width>111</width>
-       <height>25</height>
+       <height>54</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Control File:</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="0" column="1">
        <widget class="QPushButton" name="push_download">
         <property name="text">
          <string>Load</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Log File:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="push_clearLog">
+        <property name="text">
+         <string>Clear</string>
         </property>
        </widget>
       </item>
@@ -393,7 +407,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>507</width>
+     <width>544</width>
      <height>21</height>
     </rect>
    </property>
