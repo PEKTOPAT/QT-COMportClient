@@ -4,8 +4,9 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QTime>
+#include <QMessageBox>
 
-
+#define NUMBYTECONTROL 2;
 //******************************************************************************
 CheckData::CheckData(QWidget *parent) :
     QMainWindow(parent),
@@ -25,6 +26,10 @@ CheckData::CheckData(QWidget *parent) :
     numBit = 0;
     flagSyncFile_1 = false;
     flagSyncFile_2 = false;
+    countValidity_Ch1 = 0;
+    countValidity_Ch2 = 0;
+    validity_1 = 0;
+    validity_2 = 0;
 
     port = new QSerialPort(this);
     ui->comboBox_2->addItem("9600");
@@ -46,6 +51,7 @@ CheckData::CheckData(QWidget *parent) :
     connect(ui->push_reset, SIGNAL(clicked(bool)), this, SLOT(reset_Arduino()));
     connect(ui->push_download, SIGNAL(clicked(bool)), this, SLOT(openPatternFile()));
     connect(ui->push_clearLog, SIGNAL(clicked(bool)), this, SLOT(clearFileMSG()));
+    connect(ui->push_connect,SIGNAL(clicked()),this, SLOT(alarmMSG()));
 }
 CheckData::~CheckData()
 {
@@ -79,21 +85,23 @@ void CheckData::openPort()
     flagSyncFile_2 = false;
     Channel1.clear();
     Channel2.clear();
-    VPattern.clear();
+    countValidity_Ch1 = 0;
+    countValidity_Ch2 = 0;
+    validity_1 = 0;
+    validity_2 = 0;
 
     port->setPortName(ui->comboBox->currentText());
     port->open(QIODevice::ReadWrite);
     if(port->isOpen())
     {
-        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Connected");
+        debugTextEdit(true, "Connected");
         ui->label_status->setText("Connected");
         ui->label_status->setStyleSheet("QLabel {font-weight: bold; color : green; }");
         ui->push_connect->setEnabled(false);
         ui->push_disconnect->setEnabled(true);
         ui->label_info->setText(ui->comboBox->currentText() +" @ "+ ui->comboBox_2->currentText());
     }
-    else ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Port not open!");
-
+    else debugTextEdit(false, "Port not open!");
 }
 //******************************************************************************
 void CheckData::closePort()
@@ -103,11 +111,20 @@ void CheckData::closePort()
     {
 
         port->close();
-        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Disconnected");
+        debugTextEdit(true, "Disconnected");
         ui->label_status->setText("Disconnected");
         ui->label_status->setStyleSheet("QLabel {font-weight: bold; color : red; }");
         ui->push_connect->setEnabled(true);
         ui->push_disconnect->setEnabled(false);
+        ui->label_statusPort_1->setText(" ");
+        ui->label_statusPort_2->setText(" ");
+        ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+        ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+        ui->label_rate_1->setText(" ");
+        ui->label_rate_2->setText(" ");
+        ui->label_corr_1->setText(" ");
+        ui->label_corr_2->setText(" ");
+
     }
     else return;
 }
@@ -126,7 +143,6 @@ void CheckData::parsingPackage(QByteArray data)
     if(data.size() == 0) return;
     const QString tab = " ";
     QString strData;
-    qDebug() << "Бит -  " << numBit;
     int intData = static_cast<quint8>(data.at(0));
     for (int i = 0;i < data.size();i++)
     {
@@ -151,7 +167,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
             ui->label_rate_1->setText(" ");
             ui->label_rate_2->setText(" ");
-            ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Error detect marker!");
+            debugTextEdit(false, "Error detect marker!");
             return;
         }
     }
@@ -171,7 +187,6 @@ void CheckData::parsingPackage(QByteArray data)
         flagNumPackage = true;
         numBit = 2;
         qDebug() << "Посылка номер " << numPackage;
-        qDebug() << flagChannel_1 << flagChannel_2;
         return;
     }
     //Байт синхронизации
@@ -181,6 +196,7 @@ void CheckData::parsingPackage(QByteArray data)
         {
             ui->label_statusPort_2->setText(" ");
             ui->label_rate_2->setText(" ");
+            ui->label_corr_2->setText(" ");
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("2,4 KB/s");
@@ -192,6 +208,7 @@ void CheckData::parsingPackage(QByteArray data)
         {
             ui->label_statusPort_2->setText(" ");
             ui->label_rate_2->setText(" ");
+            ui->label_corr_2->setText(" ");
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("4,8 KB/s");
@@ -203,6 +220,7 @@ void CheckData::parsingPackage(QByteArray data)
         {
             ui->label_statusPort_2->setText(" ");
             ui->label_rate_2->setText(" ");
+            ui->label_corr_2->setText(" ");
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_1->setText("9,6 KB/s");
@@ -215,6 +233,7 @@ void CheckData::parsingPackage(QByteArray data)
         {
             ui->label_statusPort_1->setText(" ");
             ui->label_rate_1->setText(" ");
+            ui->label_corr_1->setText(" ");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("2,4 KB/s");
@@ -226,6 +245,7 @@ void CheckData::parsingPackage(QByteArray data)
         {
             ui->label_statusPort_1->setText(" ");
             ui->label_rate_1->setText(" ");
+            ui->label_corr_1->setText(" ");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("4,8 KB/s");
@@ -237,6 +257,7 @@ void CheckData::parsingPackage(QByteArray data)
         {
             ui->label_statusPort_1->setText(" ");
             ui->label_rate_1->setText(" ");
+            ui->label_corr_1->setText(" ");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_rate_2->setText("9,6 KB/s");
@@ -365,6 +386,8 @@ void CheckData::parsingPackage(QByteArray data)
         {
             ui->label_statusPort_1->setText(" ");
             ui->label_statusPort_2->setText(" ");
+            ui->label_corr_1->setText(" ");
+            ui->label_corr_2->setText(" ");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
             ui->label_rate_1->setText(" ");
@@ -378,11 +401,13 @@ void CheckData::parsingPackage(QByteArray data)
         {
             ui->label_statusPort_1->setText(" ");
             ui->label_statusPort_2->setText(" ");
+            ui->label_corr_1->setText(" ");
+            ui->label_corr_2->setText(" ");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
             ui->label_rate_1->setText(" ");
             ui->label_rate_2->setText(" ");
-            ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Error sync. Wait for marker");
+            debugTextEdit(false, "Error sync. Wait for marker");
             flagPackage = false;
             flagNumPackage = false;
             numBit = 0;
@@ -395,7 +420,7 @@ void CheckData::parsingPackage(QByteArray data)
         if(flagSyncFile_1) validitySignal(1, data);
         writeFileMSG(1, data);
         Channel1.append(data);
-        qDebug() << "Запись с первого канала" << Channel1;
+        //qDebug() << "Запись с первого канала" << Channel1;
         numBit = 4;
         flagChannel_1 = false;
         return;
@@ -415,7 +440,7 @@ void CheckData::parsingPackage(QByteArray data)
             if(flagSyncFile_2) validitySignal(2, data);
             writeFileMSG(2, data);
             Channel2.append(data);
-            qDebug() << "Запись со второго канала" << Channel2;
+            //qDebug() << "Запись со второго канала" << Channel2;
             flagPackage = false;
             flagNumPackage = false;
             numBit = 0;
@@ -436,7 +461,7 @@ void CheckData::parsingPackage(QByteArray data)
         ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
         ui->label_rate_1->setText(" ");
         ui->label_rate_2->setText(" ");
-        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Error read info");
+        debugTextEdit(false, "Error read info");
         flagPackage = false;
         flagNumPackage = false;
         numBit = 0;
@@ -444,7 +469,6 @@ void CheckData::parsingPackage(QByteArray data)
         flagChannel_2 = false;
         return;
     }
-    qDebug() << flagSyncFile_1 << Channel1.size() << VPattern.size();
     //Синхронизация полученного байта с эталоннами данными
     if(!flagSyncFile_1 && Channel1.size() == 2 && VPattern.size() != 0)
     {
@@ -457,21 +481,60 @@ void CheckData::parsingPackage(QByteArray data)
         else Channel2.remove(0,1);
     }
 
+
 }
 //******************************************************************************
 void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
 {
-    qDebug() << byte_msg;
+    QByteArray msgControl = VPattern[1].toLocal8Bit();
     if (numChannel == 1)
     {
-        QString msg = QString("%1").arg((int)byte_msg.at(0),0,2);
-        qDebug() << msg;
+        double cnt = 0;
+        QString byteControl = QString("%1").arg((int)msgControl.at(countValidity_Ch1), 8, 2, QChar('0'));
+        QString byteRecieve = QString("%1").arg((int)byte_msg.at(0), 8, 2, QChar('0'));
+        for(int i = 0; i < 8; i++)
+        {
+            if (byteControl[i] == byteRecieve[i])
+            {
+                cnt++;
+            }
+        }
+        if(validity_1 == 0) validity_1 = cnt/8;
+        else validity_1 = (validity_1 + cnt/8)/2;
+
+        ui->label_corr_1->setText(QString::number(validity_1));
+        if(countValidity_Ch1 < 1) countValidity_Ch1++;
+        else
+        {
+            countValidity_Ch1 = 0;
+            flagSyncFile_1 = false;
+            Channel1.clear();
+        }
     }
     else if(numChannel == 2)
     {
+        double cnt = 0;
+        QString byteControl = QString("%1").arg((int)msgControl.at(countValidity_Ch2), 8, 2, QChar('0'));
+        QString byteRecieve = QString("%1").arg((int)byte_msg.at(0), 8, 2, QChar('0'));
+        for(int i = 0; i < 8; i++)
+        {
+            if (byteControl[i] == byteRecieve[i])
+            {
+                cnt++;
+            }
+        }
+        if(validity_2 == 0) validity_2 = cnt/8;
+        else validity_2 = (validity_2 + cnt/8)/2;
 
+        ui->label_corr_2->setText(QString::number(validity_2));
+        if(countValidity_Ch2 < 1) countValidity_Ch2++;
+        else
+        {
+            countValidity_Ch2 = 0;
+            flagSyncFile_2 = false;
+            Channel2.clear();
+        }
     }
-    qDebug() << "Hello nigga" << byte_msg << VPattern;
 }
 //******************************************************************************
 void CheckData::writePort(QByteArray data)
@@ -489,7 +552,7 @@ void CheckData::writeFileMSG(int numChannel, QByteArray msg)
         file_ch1.close();
     }else
     {
-        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> File write error");
+        debugTextEdit(false, "File write error");
         return;
     }
 }
@@ -499,13 +562,21 @@ void CheckData::clearFileMSG()
     QString nameFile;
     nameFile.append("file_1.txt");
     QFile file_ch1(nameFile);
-    if (file_ch1.open(QIODevice::WriteOnly | QIODevice::Truncate)) file_ch1.close();
-    else ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> File write error");
+    if (file_ch1.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    {
+        file_ch1.close();
+        debugTextEdit(true, "Log file 1 cleared");
+    }
+    else debugTextEdit(false, "File_1 write error");
     nameFile.clear();
     nameFile.append("file_2.txt");
     QFile file_ch2(nameFile);
-    if (file_ch2.open(QIODevice::WriteOnly | QIODevice::Truncate)) file_ch2.close();
-    else ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> File write error");
+    if (file_ch2.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    {
+        file_ch2.close();
+        debugTextEdit(true, "Log file 2 cleared");
+    }
+    else debugTextEdit(false, "File_2 write error");
 }
 
 //******************************************************************************
@@ -515,16 +586,17 @@ void CheckData::openPatternFile()
     QString fileName = QFileDialog::getOpenFileName(this);
     if(fileName.isEmpty())
     {
-        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> File isEmpty");
+        debugTextEdit(false, "File isEmpty");
         return;
     }
     QFile file(fileName);
 
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> File not open");
+        debugTextEdit(false, "File not open");
+        alarmMSG();
         return;
-    }else ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> File load");
+    }else debugTextEdit(true, "Control file load");
     QTextStream in(&file);
     QString line = in.readLine();
     VPattern.append(line);
@@ -546,8 +618,26 @@ void CheckData::reset_Arduino()
     if(port->isOpen())
     {
         writePort(msg);
-        ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> Reset arduino");
+        debugTextEdit(true, "Reset arduino");
     }
-    else return;
+    else
+    {
+        debugTextEdit(false, "Reset err. No connect");
+        return;
+    }
 }
 //******************************************************************************
+void CheckData::alarmMSG()
+{
+    if(VPattern.size() == 0)
+    {
+        QMessageBox::warning(this, "Info", "Control file not loaded!\nValidity won't work");
+    }
+}
+//******************************************************************************
+void CheckData::debugTextEdit(bool status, QString debMSG)
+{
+    if(status) ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> " + debMSG);
+    else ui->textEdit->append("<font color = red><\\font>" + QTime::currentTime().toString("HH:mm:ss") + " -> " + debMSG);
+}
+//

@@ -33,6 +33,10 @@ private:
     QVector <QString> VPattern;
     bool flagSyncFile_1;
     bool flagSyncFile_2;
+    int countValidity_Ch1;
+    int countValidity_Ch2;
+    double validity_1;
+    double validity_2;
 
 
 private slots:
@@ -47,6 +51,8 @@ private slots:
     void validitySignal(int numChannel, QByteArray byte_msg);
     void writeFileMSG(int numChannel, QByteArray msg);
     void clearFileMSG();
+    void alarmMSG();
+    void debugTextEdit(bool status, QString debMSG);
 };
 
 #endif // CHECKDATA_H
