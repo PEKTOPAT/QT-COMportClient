@@ -6,7 +6,6 @@
 #include <QTime>
 #include <QMessageBox>
 
-#define NUMBYTECONTROL 2;
 //******************************************************************************
 CheckData::CheckData(QWidget *parent) :
     QMainWindow(parent),
@@ -181,7 +180,8 @@ void CheckData::parsingPackage(QByteArray data)
         return;
     }
     //Байт номера последюущих посылок, проверка на последовательность данных
-    else if(!flagNumPackage && numPackage == intData - 1 && numBit == 1)
+    //else if(!flagNumPackage && numPackage == intData - 1 && numBit == 1)
+        else if(!flagNumPackage && numBit == 1)
     {
         numPackage++;
         flagNumPackage = true;
@@ -420,7 +420,6 @@ void CheckData::parsingPackage(QByteArray data)
         if(flagSyncFile_1) validitySignal(1, data);
         writeFileMSG(1, data);
         Channel1.append(data);
-        //qDebug() << "Запись с первого канала" << Channel1;
         numBit = 4;
         flagChannel_1 = false;
         return;
@@ -440,7 +439,6 @@ void CheckData::parsingPackage(QByteArray data)
             if(flagSyncFile_2) validitySignal(2, data);
             writeFileMSG(2, data);
             Channel2.append(data);
-            //qDebug() << "Запись со второго канала" << Channel2;
             flagPackage = false;
             flagNumPackage = false;
             numBit = 0;
@@ -470,22 +468,25 @@ void CheckData::parsingPackage(QByteArray data)
         return;
     }
     //Синхронизация полученного байта с эталоннами данными
-    if(!flagSyncFile_1 && Channel1.size() == 2 && VPattern.size() != 0)
+    if(VPattern.size() == 0) return;
+    if(!flagSyncFile_1 && Channel1.size() == VPattern[0].size())
     {
         if(Channel1 == VPattern[0])flagSyncFile_1 = true;
         else Channel1.remove(0,1);
     }
-    if(!flagSyncFile_2 && Channel2.size() == 2 && VPattern.size() != 0)
+    if(!flagSyncFile_2 && Channel2.size() == VPattern[0].size())
     {
         if(Channel2 == VPattern[0])flagSyncFile_2 = true;
         else Channel2.remove(0,1);
     }
+    else return;
 
 
 }
 //******************************************************************************
 void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
 {
+    if(VPattern.size() == 0) return;
     QByteArray msgControl = VPattern[1].toLocal8Bit();
     if (numChannel == 1)
     {
@@ -503,12 +504,15 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         else validity_1 = (validity_1 + cnt/8)/2;
 
         ui->label_corr_1->setText(QString::number(validity_1));
-        if(countValidity_Ch1 < 1) countValidity_Ch1++;
+        if(countValidity_Ch1 <  (msgControl.size() - 1)) countValidity_Ch1++;
         else
         {
             countValidity_Ch1 = 0;
             flagSyncFile_1 = false;
             Channel1.clear();
+//            QByteArray enter;
+//            enter.append("\n");
+//            writeFileMSG(2, enter);
         }
     }
     else if(numChannel == 2)
@@ -527,12 +531,15 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         else validity_2 = (validity_2 + cnt/8)/2;
 
         ui->label_corr_2->setText(QString::number(validity_2));
-        if(countValidity_Ch2 < 1) countValidity_Ch2++;
+        if(countValidity_Ch2 <  (msgControl.size() - 1)) countValidity_Ch2++;
         else
         {
             countValidity_Ch2 = 0;
             flagSyncFile_2 = false;
             Channel2.clear();
+            QByteArray enter;
+            enter.append("\n");
+            writeFileMSG(1, enter);
         }
     }
 }
@@ -614,6 +621,7 @@ void CheckData::reset_Arduino()
     QByteArray msg;
     msg.append(170);
     msg.append(153);
+    qDebug() << "__" << VPattern.size();
 
     if(port->isOpen())
     {
