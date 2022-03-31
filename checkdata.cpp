@@ -1,15 +1,21 @@
 #include "checkdata.h"
 #include "ui_checkdata.h"
 
+#include <QFileDialog>
+#include <QDebug>
+
 CheckData::CheckData(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CheckData)
 {
+    timer = NULL;
+    timer = new QTimer();
+    count = 0;
     ui->setupUi(this);
     int num_port = QSerialPortInfo::availablePorts().length();
     for(int i = 0; i < num_port; i++)
     {
-       ui->comboBox->addItem(QSerialPortInfo::availablePorts().at(i).portName());
+        ui->comboBox->addItem(QSerialPortInfo::availablePorts().at(i).portName());
     }
     port = new QSerialPort(this);
     ui->comboBox_2->addItem("9600");
@@ -27,6 +33,14 @@ CheckData::CheckData(QWidget *parent) :
     connect(ui->push_connect,SIGNAL(clicked()),this, SLOT(openPort()));
     connect(ui->push_disconnect,SIGNAL(clicked()),this, SLOT(closePort()));
     connect(ui->comboBox_2, SIGNAL(currentIndexChanged(int)), this, SLOT(setRate_slot(int)));
+    connect(ui->push_download, SIGNAL(clicked(bool)), this, SLOT(openPatternFile()));
+    connect(ui->push_send, SIGNAL(clicked(bool)), this, SLOT(sendClick()));
+    connect(ui->push_stop, SIGNAL(clicked(bool)), this, SLOT(stopSendClick()));
+    connect(ui->push_generate, SIGNAL(clicked(bool)), this, SLOT(createPackage()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(writePort()));
+
+
+
 }
 
 CheckData::~CheckData()
@@ -34,6 +48,7 @@ CheckData::~CheckData()
     delete ui;
 
     delete port;
+    delete timer;
 }
 void CheckData::setRate_slot(int rate)
 {
@@ -74,7 +89,97 @@ void CheckData::closePort()
         ui->label_status->setStyleSheet("QLabel {font-weight: bold; color : red; }");
         ui->push_connect->setEnabled(true);
         ui->push_disconnect->setEnabled(false);
+        count = 0;
     }
     else return;
 
 }
+//******************************************************************************
+void CheckData::writePort()
+{
+    if(dataforSend.size() < 1)
+    {
+        debugTextEdit(false, "File not load");
+        return;
+    }
+    else
+    {
+        QByteArray send;
+        send.append(dataforSend.at(count));
+        qDebug() << send;
+        port->write(send);
+        send.clear();
+    }
+    if(count < (dataforSend.size() - 1))
+    {
+        count++;
+    }else count = 0;
+
+}
+//******************************************************************************
+void CheckData::createPackage()
+{
+    dataforSend.clear();
+    for(int i = 1; i <= Pattern.size(); i++)
+    {
+        dataforSend.append(171);
+        dataforSend.append(i);
+        dataforSend.append(230);
+        QString info1 = Pattern.at(i - 1);
+        dataforSend.append(info1);
+        QString info2 = Pattern.at(i - 1);
+        dataforSend.append(info2);
+    }
+    qDebug() << dataforSend[0];
+    debugTextEdit(true, "Create Package");
+
+}
+//******************************************************************************
+void CheckData::openPatternFile()
+{
+    count = 0;
+    dataforSend.clear();
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if(fileName.isEmpty())
+    {
+        debugTextEdit(false, "File isEmpty");
+        return;
+    }
+    QFile file(fileName);
+
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        debugTextEdit(false, "File not open");
+        return;
+    }else debugTextEdit(true, "Control file load");
+    QTextStream in(&file);
+
+    while(!in.atEnd())
+    {
+        QString line = in.readLine();
+        Pattern.append(line);
+    }
+    qDebug() << dataforSend;
+    file.close();
+}
+//******************************************************************************
+void CheckData::debugTextEdit(bool status, QString debMSG)
+{
+    if(status) ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> " + debMSG);
+    else ui->textEdit->append("<font color = red><\\font>" + QTime::currentTime().toString("HH:mm:ss") + " -> " + debMSG);
+}
+//******************************************************************************
+void CheckData::sendClick()
+{
+    debugTextEdit(true, "Start send");
+    qDebug() << timer;
+    timer->start(100);
+    qDebug() << timer;
+
+}
+void CheckData::stopSendClick()
+{
+    debugTextEdit(true, "Stop send");
+    timer->stop();
+}
+
