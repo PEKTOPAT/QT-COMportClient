@@ -28,6 +28,8 @@ private:
     QByteArray dataforSend;
     int count;
     QTimer *timer;
+    QByteArray send;
+    int TimeSend;
 
 
 
@@ -42,6 +44,7 @@ private slots:
     void sendClick();
     void stopSendClick();
 
+    void on_lineEdit_editingFinished();
 };
 
 #endif // CHECKDATA_H

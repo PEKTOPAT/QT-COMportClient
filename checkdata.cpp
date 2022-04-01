@@ -11,6 +11,7 @@ CheckData::CheckData(QWidget *parent) :
     timer = NULL;
     timer = new QTimer();
     count = 0;
+    TimeSend = 50;
     ui->setupUi(this);
     int num_port = QSerialPortInfo::availablePorts().length();
     for(int i = 0; i < num_port; i++)
@@ -104,9 +105,8 @@ void CheckData::writePort()
     }
     else
     {
-        QByteArray send;
         send.append(dataforSend.at(count));
-        qDebug() << send;
+        qDebug() << "__" << send;
         port->write(send);
         send.clear();
     }
@@ -130,7 +130,6 @@ void CheckData::createPackage()
         QString info2 = Pattern.at(i - 1);
         dataforSend.append(info2);
     }
-    qDebug() << dataforSend[0];
     debugTextEdit(true, "Create Package");
 
 }
@@ -172,10 +171,7 @@ void CheckData::debugTextEdit(bool status, QString debMSG)
 void CheckData::sendClick()
 {
     debugTextEdit(true, "Start send");
-    qDebug() << timer;
-    timer->start(100);
-    qDebug() << timer;
-
+    timer->start(TimeSend);
 }
 void CheckData::stopSendClick()
 {
@@ -183,3 +179,9 @@ void CheckData::stopSendClick()
     timer->stop();
 }
 
+
+void CheckData::on_lineEdit_editingFinished()
+{
+    QString a = ui->lineEdit->text();
+    TimeSend = a.toInt();
+}
