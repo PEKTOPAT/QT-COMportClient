@@ -7,8 +7,7 @@
 #include <QMessageBox>
 
 //******************************************************************************
-CheckData::CheckData(QWidget *parent) :
-    QMainWindow(parent),
+CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     ui(new Ui::CheckData)
 {
     ui->setupUi(this);
@@ -30,6 +29,8 @@ CheckData::CheckData(QWidget *parent) :
     validity_1 = 0;
     validity_2 = 0;
 
+    ui->progressBar_1->setValue(0);
+    ui->progressBar_2->setValue(0);
     port = new QSerialPort(this);
     ui->comboBox_2->addItem("9600");
     ui->comboBox_2->addItem("19200");
@@ -134,6 +135,7 @@ QByteArray CheckData::readPort()
     if (port->bytesAvailable() == 0) return data;
     data = port->readAll();
     parsingPackage(data);
+    qDebug() << data;
     return data;
 }
 
@@ -148,7 +150,8 @@ void CheckData::parsingPackage(QByteArray data)
         strData = strData+QString("%1").arg(intData)+tab;
     }
     strData.resize(strData.length() - 1);
-    qDebug() <<"Полученное сообщение "<< strData;
+        //qDebug() << strData;
+    //qDebug() <<"Полученное сообщение "<< strData;
     //Байт маркера начала посылки
     if(!flagPackage && numBit == 0)
     {
@@ -156,7 +159,7 @@ void CheckData::parsingPackage(QByteArray data)
         {
             flagPackage = true;
             numBit = 1;
-            qDebug() << "Обнаружена посылка!";
+            //qDebug() << "Обнаружена посылка!";
 
         }else
         {
@@ -176,17 +179,17 @@ void CheckData::parsingPackage(QByteArray data)
         numPackage = intData;
         flagNumPackage = true;
         numBit = 2;
-        qDebug() << "Посылка номер" << intData;
+        //qDebug() << "Посылка номер" << intData;
         return;
     }
     //Байт номера последюущих посылок, проверка на последовательность данных
     //else if(!flagNumPackage && numPackage == intData - 1 && numBit == 1)
-        else if(!flagNumPackage && numBit == 1)
+    else if(!flagNumPackage && numBit == 1)
     {
         numPackage++;
         flagNumPackage = true;
         numBit = 2;
-        qDebug() << "Посылка номер " << numPackage;
+        //qDebug() << "Посылка номер " << numPackage;
         return;
     }
     //Байт синхронизации
@@ -417,8 +420,10 @@ void CheckData::parsingPackage(QByteArray data)
     //Если получен 3 байт и поднят флаг информации 0-го, то происходит запись инф
     else if (flagChannel_1 && numBit == 3)
     {
-        if(flagSyncFile_1) validitySignal(1, data);
         writeFileMSG(1, data);
+        if(ui->progressBar_1->value() >= ui->progressBar_1->maximum()) ui->progressBar_1->reset();
+        ui->progressBar_1->setValue(ui->progressBar_1->value() + 1);
+        if(flagSyncFile_1) validitySignal(1, data);
         Channel1.append(data);
         numBit = 4;
         flagChannel_1 = false;
@@ -436,8 +441,10 @@ void CheckData::parsingPackage(QByteArray data)
     {
         if(flagChannel_2)
         {
-            if(flagSyncFile_2) validitySignal(2, data);
             writeFileMSG(2, data);
+            if(ui->progressBar_2->value() >= ui->progressBar_2->maximum()) ui->progressBar_2->reset();
+            ui->progressBar_2->setValue(ui->progressBar_2->value() + 1);
+            if(flagSyncFile_2) validitySignal(2, data);
             Channel2.append(data);
             flagPackage = false;
             flagNumPackage = false;
@@ -497,6 +504,7 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         {
             if (byteControl[i] == byteRecieve[i])
             {
+
                 cnt++;
             }
         }
@@ -510,9 +518,9 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             countValidity_Ch1 = 0;
             flagSyncFile_1 = false;
             Channel1.clear();
-//            QByteArray enter;
-//            enter.append("\n");
-//            writeFileMSG(2, enter);
+            QByteArray enter;
+            enter.append("\n");
+            writeFileMSG(1, enter);
         }
     }
     else if(numChannel == 2)
@@ -539,7 +547,7 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             Channel2.clear();
             QByteArray enter;
             enter.append("\n");
-            writeFileMSG(1, enter);
+            writeFileMSG(2, enter);
         }
     }
 }
