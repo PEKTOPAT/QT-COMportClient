@@ -28,6 +28,10 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     countValidity_Ch2 = 0;
     validity_1 = 0;
     validity_2 = 0;
+    validityTrue_1 = 0;
+    validityAll_1 = 0;
+    validityTrue_2 = 0;
+    validityAll_2 = 0;
 
     ui->progressBar_1->setValue(0);
     ui->progressBar_2->setValue(0);
@@ -48,7 +52,8 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     connect(ui->push_disconnect,SIGNAL(clicked()),this, SLOT(closePort()));
     connect(ui->comboBox_2, SIGNAL(currentIndexChanged(int)), this, SLOT(setRate_slot(int)));
     connect(port, SIGNAL(readyRead()), this, SLOT(readPort()));
-    connect(ui->push_reset, SIGNAL(clicked(bool)), this, SLOT(reset_Arduino()));
+    connect(ui->push_reset_arduin, SIGNAL(clicked(bool)), this, SLOT(reset_Arduino()));
+    connect(ui->push_reset_tlm, SIGNAL(clicked(bool)), this, SLOT(reset_Telementry()));
     connect(ui->push_download, SIGNAL(clicked(bool)), this, SLOT(openPatternFile()));
     connect(ui->push_clearLog, SIGNAL(clicked(bool)), this, SLOT(clearFileMSG()));
     connect(ui->push_connect,SIGNAL(clicked()),this, SLOT(alarmMSG()));
@@ -89,6 +94,10 @@ void CheckData::openPort()
     countValidity_Ch2 = 0;
     validity_1 = 0;
     validity_2 = 0;
+    validityTrue_1 = 0;
+    validityAll_1 = 0;
+    validityTrue_2 = 0;
+    validityAll_2 = 0;
 
     port->setPortName(ui->comboBox->currentText());
     port->open(QIODevice::ReadWrite);
@@ -124,6 +133,8 @@ void CheckData::closePort()
         ui->label_rate_2->setText(" ");
         ui->label_corr_1->setText(" ");
         ui->label_corr_2->setText(" ");
+        ui->progressBar_1->setValue(0);
+        ui->progressBar_2->setValue(0);
 
     }
     else return;
@@ -132,10 +143,15 @@ void CheckData::closePort()
 QByteArray CheckData::readPort()
 {
     QByteArray data;
+    QByteArray transit;
     if (port->bytesAvailable() == 0) return data;
     data = port->readAll();
-    parsingPackage(data);
-    qDebug() << data;
+    for(int i = 0; i < data.size(); i++)
+    {
+        transit.clear();
+        transit.append(data[i]);
+        parsingPackage(transit);
+    }
     return data;
 }
 
@@ -150,7 +166,6 @@ void CheckData::parsingPackage(QByteArray data)
         strData = strData+QString("%1").arg(intData)+tab;
     }
     strData.resize(strData.length() - 1);
-        //qDebug() << strData;
     //qDebug() <<"Полученное сообщение "<< strData;
     //Байт маркера начала посылки
     if(!flagPackage && numBit == 0)
@@ -179,18 +194,30 @@ void CheckData::parsingPackage(QByteArray data)
         numPackage = intData;
         flagNumPackage = true;
         numBit = 2;
-        //qDebug() << "Посылка номер" << intData;
+        qDebug() << "Посылка номер" << intData;
         return;
     }
     //Байт номера последюущих посылок, проверка на последовательность данных
     //else if(!flagNumPackage && numPackage == intData - 1 && numBit == 1)
     else if(!flagNumPackage && numBit == 1)
     {
+        if(numPackage == intData - 1)
+        {
         numPackage++;
+        if(numPackage == 256) numPackage = 0;
         flagNumPackage = true;
         numBit = 2;
-        //qDebug() << "Посылка номер " << numPackage;
+        qDebug() << "Посылка номер " << numPackage;
         return;
+        }
+        else
+        {
+           numPackage = 0;
+           numBit = 0;
+           flagNumPackage = false;
+           debugTextEdit(false, "Error detect num!");
+           return;
+        }
     }
     //Байт синхронизации
     else if(!flagChannel_1 && !flagChannel_2 && numBit == 2)
@@ -497,20 +524,19 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
     QByteArray msgControl = VPattern[1].toLocal8Bit();
     if (numChannel == 1)
     {
-        double cnt = 0;
+        int cnt = 0;
         QString byteControl = QString("%1").arg((int)msgControl.at(countValidity_Ch1), 8, 2, QChar('0'));
         QString byteRecieve = QString("%1").arg((int)byte_msg.at(0), 8, 2, QChar('0'));
         for(int i = 0; i < 8; i++)
         {
+            validityAll_1++;
             if (byteControl[i] == byteRecieve[i])
             {
-
                 cnt++;
             }
         }
-        if(validity_1 == 0) validity_1 = cnt/8;
-        else validity_1 = (validity_1 + cnt/8)/2;
-
+        validityTrue_1 = validityTrue_1 + cnt;
+        validity_1 = validityTrue_1 / validityAll_1;
         ui->label_corr_1->setText(QString::number(validity_1));
         if(countValidity_Ch1 <  (msgControl.size() - 1)) countValidity_Ch1++;
         else
@@ -521,6 +547,7 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             QByteArray enter;
             enter.append("\n");
             writeFileMSG(1, enter);
+            ui->progressBar_1->setValue(0);
         }
     }
     else if(numChannel == 2)
@@ -530,14 +557,14 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         QString byteRecieve = QString("%1").arg((int)byte_msg.at(0), 8, 2, QChar('0'));
         for(int i = 0; i < 8; i++)
         {
+             validityAll_2++;
             if (byteControl[i] == byteRecieve[i])
             {
                 cnt++;
             }
         }
-        if(validity_2 == 0) validity_2 = cnt/8;
-        else validity_2 = (validity_2 + cnt/8)/2;
-
+        validityTrue_2 = validityTrue_2 + cnt;
+        validity_2 = validityTrue_2 / validityAll_2;
         ui->label_corr_2->setText(QString::number(validity_2));
         if(countValidity_Ch2 <  (msgControl.size() - 1)) countValidity_Ch2++;
         else
@@ -548,6 +575,7 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             QByteArray enter;
             enter.append("\n");
             writeFileMSG(2, enter);
+            ui->progressBar_2->setValue(0);
         }
     }
 }
@@ -613,6 +641,7 @@ void CheckData::openPatternFile()
         return;
     }else debugTextEdit(true, "Control file load");
     QTextStream in(&file);
+
     QString line = in.readLine();
     VPattern.append(line);
     while(!in.atEnd())
@@ -620,6 +649,13 @@ void CheckData::openPatternFile()
         QString line = in.readLine();
         VPattern.append(line);
     }
+    int size = 0;
+    for(int i = 0; i < VPattern.size(); i++)
+    {
+          size = size + VPattern[i].size();
+    }
+    ui->progressBar_1->setMaximum(size);
+    ui->progressBar_2->setMaximum(size);
     file.close();
 }
 
@@ -629,7 +665,6 @@ void CheckData::reset_Arduino()
     QByteArray msg;
     msg.append(170);
     msg.append(153);
-    qDebug() << "__" << VPattern.size();
 
     if(port->isOpen())
     {
@@ -641,6 +676,34 @@ void CheckData::reset_Arduino()
         debugTextEdit(false, "Reset err. No connect");
         return;
     }
+}
+//******************************************************************************
+void CheckData::reset_Telementry()
+{
+    flagPackage = false;
+    flagNumPackage = false;
+    flagChannel_1 = false;
+    flagChannel_2 = false;
+    numPackage = 0;
+    numBit = 0;
+    flagSyncFile_1 = false;
+    flagSyncFile_2 = false;
+    countValidity_Ch1 = 0;
+    countValidity_Ch2 = 0;
+    validity_1 = 0;
+    validity_2 = 0;
+    validityTrue_1 = 0;
+    validityAll_1 = 0;
+    validityTrue_2 = 0;
+    validityAll_2 = 0;
+    ui->progressBar_1->setValue(0);
+    ui->progressBar_2->setValue(0);
+    ui->label_statusPort_1->setText(" ");
+    ui->label_statusPort_2->setText(" ");
+    ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+    ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+    ui->label_rate_1->setText(" ");
+    ui->label_rate_2->setText(" ");
 }
 //******************************************************************************
 void CheckData::alarmMSG()

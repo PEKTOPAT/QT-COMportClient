@@ -36,7 +36,11 @@ private:
     int countValidity_Ch1;
     int countValidity_Ch2;
     double validity_1;
+    double validityTrue_1;
+    double validityAll_1;
     double validity_2;
+    double validityTrue_2;
+    double validityAll_2;
 
 
 private slots:
@@ -53,6 +57,7 @@ private slots:
     void clearFileMSG();
     void alarmMSG();
     void debugTextEdit(bool status, QString debMSG);
+    void reset_Telementry();
 };
 
 #endif // CHECKDATA_H

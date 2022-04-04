@@ -41,7 +41,7 @@
         <property name="title">
          <string>Channel 1</string>
         </property>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -116,7 +116,7 @@
         <property name="title">
          <string>Channel 2</string>
         </property>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -279,7 +279,7 @@
      </rect>
     </property>
     <property name="title">
-     <string>GroupBox</string>
+     <string>Info</string>
     </property>
     <widget class="QTextEdit" name="textEdit">
      <property name="geometry">
@@ -304,11 +304,37 @@
       <string>Reset Arduino:</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="push_reset">
+    <widget class="QPushButton" name="push_reset_arduin">
      <property name="geometry">
       <rect>
        <x>120</x>
        <y>20</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Reset</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_10">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Reset Telemetry:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="push_reset_tlm">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>50</y>
        <width>75</width>
        <height>23</height>
       </rect>
@@ -393,7 +419,7 @@
       <rect>
        <x>10</x>
        <y>20</y>
-       <width>141</width>
+       <width>111</width>
        <height>54</height>
       </rect>
      </property>
