@@ -188,35 +188,38 @@ void CheckData::parsingPackage(QByteArray data)
             return;
         }
     }
-    //Байт номер посылки (самой первой пойманной)
-    else if(numPackage == 0 && numBit == 1 && intData >= 0)
+    //Байт номера посылок, проверка на последовательность данных
+    else if(!flagNumPackage && numBit == 1 && intData >= 0)
     {
-        numPackage = intData;
-        flagNumPackage = true;
-        numBit = 2;
-        qDebug() << "Посылка номер" << intData;
-        return;
-    }
-    //Байт номера последюущих посылок, проверка на последовательность данных
-    //else if(!flagNumPackage && numPackage == intData - 1 && numBit == 1)
-    else if(!flagNumPackage && numBit == 1)
-    {
-        if(numPackage == intData - 1)
+        if(numPackage == 0 || intData == 1)
         {
-        numPackage++;
-        if(numPackage == 256) numPackage = 0;
-        flagNumPackage = true;
-        numBit = 2;
-        qDebug() << "Посылка номер " << numPackage;
-        return;
+            numPackage = intData;
+            numBit = 2;
+            flagNumPackage = true;
+            ui->progressBar_1->setValue(intData);
+            ui->progressBar_2->setValue(intData);
+            return;
+        }
+        else if(numPackage == intData - 1)
+        {
+            qDebug() << intData;
+            numPackage++;
+            if(numPackage == 256) numPackage = 0;
+            flagNumPackage = true;
+            numBit = 2;
+            qDebug() << "Посылка номер " << numPackage;
+            return;
         }
         else
         {
-           numPackage = 0;
-           numBit = 0;
-           flagNumPackage = false;
-           debugTextEdit(false, "Error detect num!");
-           return;
+            flagPackage = false;
+            numPackage = 0;
+            numBit = 0;
+            flagNumPackage = false;
+            debugTextEdit(false, "Error detect num!");
+            ui->label_corr_1->setText(" ");
+            ui->label_corr_2->setText(" ");
+            return;
         }
     }
     //Байт синхронизации
@@ -557,7 +560,7 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         QString byteRecieve = QString("%1").arg((int)byte_msg.at(0), 8, 2, QChar('0'));
         for(int i = 0; i < 8; i++)
         {
-             validityAll_2++;
+            validityAll_2++;
             if (byteControl[i] == byteRecieve[i])
             {
                 cnt++;
@@ -652,7 +655,7 @@ void CheckData::openPatternFile()
     int size = 0;
     for(int i = 0; i < VPattern.size(); i++)
     {
-          size = size + VPattern[i].size();
+        size = size + VPattern[i].size();
     }
     ui->progressBar_1->setMaximum(size);
     ui->progressBar_2->setMaximum(size);
@@ -704,6 +707,8 @@ void CheckData::reset_Telementry()
     ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
     ui->label_rate_1->setText(" ");
     ui->label_rate_2->setText(" ");
+    ui->label_corr_1->setText(" ");
+    ui->label_corr_2->setText(" ");
 }
 //******************************************************************************
 void CheckData::alarmMSG()
