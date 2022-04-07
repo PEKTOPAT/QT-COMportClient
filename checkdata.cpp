@@ -191,7 +191,8 @@ void CheckData::parsingPackage(QByteArray data)
     //Байт номера посылок, проверка на последовательность данных
     else if(!flagNumPackage && numBit == 1 && intData >= 0)
     {
-        if(numPackage == 0 || intData == 1)
+        qDebug() << "Посылка номер " << numPackage << strData;
+        if(numPackage == 0 || intData == 0)
         {
             numPackage = intData;
             numBit = 2;
@@ -207,7 +208,7 @@ void CheckData::parsingPackage(QByteArray data)
             if(numPackage == 256) numPackage = 0;
             flagNumPackage = true;
             numBit = 2;
-            qDebug() << "Посылка номер " << numPackage;
+
             return;
         }
         else
@@ -523,6 +524,7 @@ void CheckData::parsingPackage(QByteArray data)
 //******************************************************************************
 void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
 {
+    qDebug() << "Andreila";
     if(VPattern.size() == 0) return;
     QByteArray msgControl = VPattern[1].toLocal8Bit();
     if (numChannel == 1)
@@ -716,6 +718,7 @@ void CheckData::alarmMSG()
     if(VPattern.size() == 0)
     {
         QMessageBox::warning(this, "Info", "Control file not loaded!\nValidity won't work");
+        return;
     }
 }
 //******************************************************************************
