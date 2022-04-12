@@ -11,6 +11,7 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     ui(new Ui::CheckData)
 {
     ui->setupUi(this);
+    setGeometry(300, 300, 300, 300);
     int num_port = QSerialPortInfo::availablePorts().length();
     for(int i = 0; i < num_port; i++)
     {
