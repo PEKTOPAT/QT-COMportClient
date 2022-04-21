@@ -90,7 +90,7 @@ void CheckData::closePort()
         ui->label_status->setStyleSheet("QLabel {font-weight: bold; color : red; }");
         ui->push_connect->setEnabled(true);
         ui->push_disconnect->setEnabled(false);
-        count = 0;
+        //count = 0;
     }
     else return;
 
@@ -123,7 +123,7 @@ void CheckData::createPackage()
     for(int i = 1; i <= Pattern.size(); i++)
     {
         dataforSend.append(171);
-        dataforSend.append(i);
+        dataforSend.append(i - 1);
         dataforSend.append(230);
         QString info1 = Pattern.at(i - 1);
         dataforSend.append(info1);
