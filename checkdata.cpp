@@ -36,13 +36,9 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
 
     ui->progressBar_1->setValue(0);
     ui->progressBar_2->setValue(0);
-    port = new QSerialPort(this);
-//    ui->comboBox_2->addItem("9600");
-//    ui->comboBox_2->addItem("19200");
-//    ui->comboBox_2->addItem("38400");
-//    ui->comboBox_2->addItem("57600");
     ui->comboBox_2->addItem("115200");
 
+    port = new QSerialPort(this);
     port->setDataBits(QSerialPort::Data8);
     port->setFlowControl(QSerialPort::NoFlowControl);
     port->setParity(QSerialPort::NoParity);
@@ -157,22 +153,28 @@ QByteArray CheckData::readPort()
     }
     return data;
 }
-
+//******************************************************************************
 void CheckData::parsingPackage(QByteArray data)
 {
     if(data.size() == 0) return;
     const QString tab = " ";
     QString strData;
+    //+++
     QString HEX;
     QString HEXmm = "0x";
+    //_++
     int intData = static_cast<quint8>(data.at(0));
     for (int i = 0;i < data.size();i++)
     {
+        //+++
         HEX = QString("%1").arg(intData,0,16) + tab;
         HEX = HEXmm + HEX.toUpper();
+        //_++
         strData = strData+QString("%1").arg(intData)+tab;
     }
+    //+++
     ui->textEdit->append(HEX);
+    //_++
     strData.resize(strData.length() - 1);
     //qDebug() <<"Полученное сообщение "<< strData;
     //Байт маркера начала посылки
@@ -183,7 +185,6 @@ void CheckData::parsingPackage(QByteArray data)
             flagPackage = true;
             numBit = 1;
             //qDebug() << "Обнаружена посылка!";
-
         }else
         {
             ui->label_statusPort_1->setText(" ");
@@ -241,7 +242,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_corr_2->setText(" ");
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("2,4 KB/s");
+            ui->label_rate_1->setText("1,2 KB/s");
             flagChannel_1 = true;
             numBit = 3;
             return;
@@ -253,7 +254,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_corr_2->setText(" ");
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("4,8 KB/s");
+            ui->label_rate_1->setText("2,4 KB/s");
             flagChannel_1 = true;
             numBit = 3;
             return;
@@ -265,7 +266,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_corr_2->setText(" ");
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("9,6 KB/s");
+            ui->label_rate_1->setText("4,8 KB/s");
             flagChannel_1 = true;
             numBit = 3;
             return;
@@ -278,7 +279,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_corr_1->setText(" ");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_2->setText("2,4 KB/s");
+            ui->label_rate_2->setText("1,2 KB/s");
             flagChannel_2 = true;
             numBit = 3;
             return;
@@ -290,7 +291,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_corr_1->setText(" ");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_2->setText("4,8 KB/s");
+            ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_2 = true;
             numBit = 3;
             return;
@@ -302,7 +303,7 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_corr_1->setText(" ");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_2->setText("9,6 KB/s");
+            ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_2 = true;
             numBit = 3;
             return;
@@ -313,8 +314,8 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("2,4 KB/s");
-            ui->label_rate_2->setText("2,4 KB/s");
+            ui->label_rate_1->setText("1,2 KB/s");
+            ui->label_rate_2->setText("1,2 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
             numBit = 3;
@@ -326,8 +327,8 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("2,4 KB/s");
-            ui->label_rate_2->setText("4,8 KB/s");
+            ui->label_rate_1->setText("1,2 KB/s");
+            ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
             numBit = 3;
@@ -339,8 +340,8 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("2,4 KB/s");
-            ui->label_rate_2->setText("9,6 KB/s");
+            ui->label_rate_1->setText("1,2 KB/s");
+            ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
             numBit = 3;
@@ -352,8 +353,8 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("4,8 KB/s");
-            ui->label_rate_2->setText("2,4 KB/s");
+            ui->label_rate_1->setText("2,4 KB/s");
+            ui->label_rate_2->setText("1,2 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
             numBit = 3;
@@ -365,8 +366,8 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("4,8 KB/s");
-            ui->label_rate_2->setText("4,8 KB/s");
+            ui->label_rate_1->setText("1,2 KB/s");
+            ui->label_rate_2->setText("1,2 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
             numBit = 3;
@@ -378,8 +379,8 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("4,8 KB/s");
-            ui->label_rate_2->setText("9,6 KB/s");
+            ui->label_rate_1->setText("2,4 KB/s");
+            ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
             numBit = 3;
@@ -391,8 +392,8 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("9,6 KB/s");
-            ui->label_rate_2->setText("2,4 KB/s");
+            ui->label_rate_1->setText("4,8 KB/s");
+            ui->label_rate_2->setText("1,2 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
             numBit = 3;
@@ -404,8 +405,8 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("9,6 KB/s");
-            ui->label_rate_2->setText("4,8 KB/s");
+            ui->label_rate_1->setText("4,8 KB/s");
+            ui->label_rate_2->setText("2,4 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
             numBit = 3;
@@ -417,8 +418,8 @@ void CheckData::parsingPackage(QByteArray data)
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
             ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
-            ui->label_rate_1->setText("9,6 KB/s");
-            ui->label_rate_2->setText("9,6 KB/s");
+            ui->label_rate_1->setText("4,8 KB/s");
+            ui->label_rate_2->setText("4,8 KB/s");
             flagChannel_1 = true;
             flagChannel_2 = true;
             numBit = 3;
@@ -459,10 +460,13 @@ void CheckData::parsingPackage(QByteArray data)
     //Если получен 3 байт и поднят флаг информации 0-го, то происходит запись инф
     else if (flagChannel_1 && numBit == 3)
     {
-        writeFileMSG(1, data);
         if(ui->progressBar_1->value() >= ui->progressBar_1->maximum()) ui->progressBar_1->reset();
         ui->progressBar_1->setValue(ui->progressBar_1->value() + 1);
-        if(flagSyncFile_1) validitySignal(1, data);
+        if(flagSyncFile_1)
+        {
+            writeFileMSG(1, data);
+            validitySignal(1, data);
+        }
         Channel1.append(data);
         numBit = 4;
         flagChannel_1 = false;
@@ -480,10 +484,13 @@ void CheckData::parsingPackage(QByteArray data)
     {
         if(flagChannel_2)
         {
-            writeFileMSG(2, data);
             if(ui->progressBar_2->value() >= ui->progressBar_2->maximum()) ui->progressBar_2->reset();
             ui->progressBar_2->setValue(ui->progressBar_2->value() + 1);
-            if(flagSyncFile_2) validitySignal(2, data);
+            if(flagSyncFile_2)
+            {
+                writeFileMSG(2, data);
+                validitySignal(2, data);
+            }
             Channel2.append(data);
             flagPackage = false;
             flagNumPackage = false;
@@ -514,16 +521,37 @@ void CheckData::parsingPackage(QByteArray data)
         return;
     }
     //Синхронизация полученного байта с эталоннами данными
-    if(VPattern.size() == 0) return;
-    if(!flagSyncFile_1 && Channel1.size() == VPattern[0].size())
+    if(byteMarkerSync.size() == 0) return;
+    if(!flagSyncFile_1 && Channel1.size() == 2)
     {
-        if(Channel1 == VPattern[0])flagSyncFile_1 = true;
-        else Channel1.remove(0,1);
+        //        int cnt = 0;
+        QString byte1Marker = QString("%1").arg((int)byteMarkerSync[0], 8, 2, QChar('0'));
+        //        QString byte2Marker = QString("%1").arg((int)byteMarkerSync[1], 8, 2, QChar('0'));
+        //        QString byte1Channel = QString("%1").arg((int)Channel1[0], 8, 2, QChar('0'));
+        //        QString byte2Channel = QString("%1").arg((int)Channel1[1], 8, 2, QChar('0'));
+        qDebug() << byte1Marker << byte1Marker.size();
+        QString byte1Markers = QString("%1").arg((quint8)byteMarkerSync[0], 8, 2, QChar('0'));
+        qDebug() << byte1Markers << byte1Markers.size();
+        //        qDebug() << "NUM_1_Mark" << byte1Marker;
+        //        qDebug() << "NUM_2_Mark" << byte2Marker;
+        //        qDebug() << "NUM_1" << byte1Channel;
+        //        qDebug() << "NUM_2" << byte2Channel;
+        //        for(int i = 0; i < 8; i++)
+        //        {
+        //            validityAll_1++;
+        //            if (byteControl[i] == byteRecieve[i])
+        //            {
+        //                cnt++;
+        //            }
+        //        }
+
+        //        if(Channel1 == VPattern[0])flagSyncFile_1 = true;
+        //        else Channel1.remove(0,1);
     }
-    if(!flagSyncFile_2 && Channel2.size() == VPattern[0].size())
+    if(!flagSyncFile_2 && Channel2.size() == 2)
     {
-        if(Channel2 == VPattern[0])flagSyncFile_2 = true;
-        else Channel2.remove(0,1);
+        //        if(Channel2 == VPattern[0])flagSyncFile_2 = true;
+        //        else Channel2.remove(0,1);
     }
     else return;
 
@@ -532,8 +560,8 @@ void CheckData::parsingPackage(QByteArray data)
 //******************************************************************************
 void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
 {
-    if(VPattern.size() == 0) return;
-    QByteArray msgControl = VPattern[1].toLocal8Bit();
+    if(Pattern.size() == 0) return;
+    QByteArray msgControl = Pattern.toLocal8Bit();
     if (numChannel == 1)
     {
         int cnt = 0;
@@ -592,6 +620,32 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
     }
 }
 //******************************************************************************
+void CheckData::openPatternFile()
+{
+    strEtalon.clear();
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if(fileName.isEmpty())
+    {
+        debugTextEdit(false, "File isEmpty");
+        return;
+    }
+    QFile file(fileName);
+
+    if(!file.open(QIODevice::ReadOnly))
+    {
+        debugTextEdit(false, "File not open");
+        alarmMSG();
+        return;
+    }else debugTextEdit(true, "Control file load");
+    while(!file.atEnd())
+    {
+        byteEtalon.append(file.readAll());
+    }
+    byteMarkerSync.append(byteEtalon[0]);
+    byteMarkerSync.append(byteEtalon[1]);
+    file.close();
+}
+//******************************************************************************
 void CheckData::writePort(QByteArray data)
 {
     port->write(data);
@@ -633,44 +687,6 @@ void CheckData::clearFileMSG()
     }
     else debugTextEdit(false, "File_2 write error");
 }
-
-//******************************************************************************
-void CheckData::openPatternFile()
-{
-    VPattern.clear();
-    QString fileName = QFileDialog::getOpenFileName(this);
-    if(fileName.isEmpty())
-    {
-        debugTextEdit(false, "File isEmpty");
-        return;
-    }
-    QFile file(fileName);
-
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        debugTextEdit(false, "File not open");
-        alarmMSG();
-        return;
-    }else debugTextEdit(true, "Control file load");
-    QTextStream in(&file);
-
-    QString line = in.readLine();
-    VPattern.append(line);
-    while(!in.atEnd())
-    {
-        QString line = in.readLine();
-        VPattern.append(line);
-    }
-    int size = 0;
-    for(int i = 0; i < VPattern.size(); i++)
-    {
-        size = size + VPattern[i].size();
-    }
-    ui->progressBar_1->setMaximum(size);
-    ui->progressBar_2->setMaximum(size);
-    file.close();
-}
-
 //******************************************************************************
 void CheckData::reset_Arduino()
 {
@@ -722,7 +738,7 @@ void CheckData::reset_Telementry()
 //******************************************************************************
 void CheckData::alarmMSG()
 {
-    if(VPattern.size() == 0)
+    if(byteEtalon.size() == 0)
     {
         QMessageBox::warning(this, "Info", "Control file not loaded!\nValidity won't work");
         return;

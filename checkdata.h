@@ -30,7 +30,11 @@ private:
     int numBit;
     QByteArray Channel1;
     QByteArray Channel2;
-    QVector <QString> VPattern;
+    QString Pattern;
+    QString strEtalon;
+    QByteArray byteEtalon;
+    QString strMarkerSync;
+    QByteArray byteMarkerSync;
     bool flagSyncFile_1;
     bool flagSyncFile_2;
     int countValidity_Ch1;
