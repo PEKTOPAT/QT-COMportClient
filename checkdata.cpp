@@ -11,7 +11,7 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     ui(new Ui::CheckData)
 {
     ui->setupUi(this);
-    setGeometry(300, 300, 300, 300);
+    setGeometry(300, 300, 480, 350);
     int num_port = QSerialPortInfo::availablePorts().length();
     for(int i = 0; i < num_port; i++)
     {
@@ -37,17 +37,17 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     ui->progressBar_1->setValue(0);
     ui->progressBar_2->setValue(0);
     port = new QSerialPort(this);
-    ui->comboBox_2->addItem("9600");
-    ui->comboBox_2->addItem("19200");
-    ui->comboBox_2->addItem("38400");
-    ui->comboBox_2->addItem("57600");
+//    ui->comboBox_2->addItem("9600");
+//    ui->comboBox_2->addItem("19200");
+//    ui->comboBox_2->addItem("38400");
+//    ui->comboBox_2->addItem("57600");
     ui->comboBox_2->addItem("115200");
 
     port->setDataBits(QSerialPort::Data8);
     port->setFlowControl(QSerialPort::NoFlowControl);
     port->setParity(QSerialPort::NoParity);
     port->setStopBits(QSerialPort::OneStop);
-
+    port->setBaudRate(QSerialPort::Baud115200);
     //connecting
     connect(ui->push_connect,SIGNAL(clicked()),this, SLOT(openPort()));
     connect(ui->push_disconnect,SIGNAL(clicked()),this, SLOT(closePort()));
@@ -56,8 +56,9 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     connect(ui->push_reset_arduin, SIGNAL(clicked(bool)), this, SLOT(reset_Arduino()));
     connect(ui->push_reset_tlm, SIGNAL(clicked(bool)), this, SLOT(reset_Telementry()));
     connect(ui->push_download, SIGNAL(clicked(bool)), this, SLOT(openPatternFile()));
-    connect(ui->push_clearLog, SIGNAL(clicked(bool)), this, SLOT(clearFileMSG()));
+    connect(ui->push_clear_FileLog, SIGNAL(clicked(bool)), this, SLOT(clearFileMSG()));
     connect(ui->push_connect,SIGNAL(clicked()),this, SLOT(alarmMSG()));
+    connect(ui->push_clear_log, SIGNAL(clicked(bool)), this, SLOT(clear_LogDialog()));
 }
 CheckData::~CheckData()
 {
@@ -116,7 +117,7 @@ void CheckData::openPort()
 //******************************************************************************
 void CheckData::closePort()
 {
-    if (! port) return;
+    if (!port) return;
     if(port->isOpen())
     {
 
@@ -145,6 +146,7 @@ QByteArray CheckData::readPort()
 {
     QByteArray data;
     QByteArray transit;
+    port->portName();
     if (port->bytesAvailable() == 0) return data;
     data = port->readAll();
     for(int i = 0; i < data.size(); i++)
@@ -161,11 +163,16 @@ void CheckData::parsingPackage(QByteArray data)
     if(data.size() == 0) return;
     const QString tab = " ";
     QString strData;
+    QString HEX;
+    QString HEXmm = "0x";
     int intData = static_cast<quint8>(data.at(0));
     for (int i = 0;i < data.size();i++)
     {
+        HEX = QString("%1").arg(intData,0,16) + tab;
+        HEX = HEXmm + HEX.toUpper();
         strData = strData+QString("%1").arg(intData)+tab;
     }
+    ui->textEdit->append(HEX);
     strData.resize(strData.length() - 1);
     //qDebug() <<"Полученное сообщение "<< strData;
     //Байт маркера начала посылки
@@ -192,7 +199,7 @@ void CheckData::parsingPackage(QByteArray data)
     //Байт номера посылок, проверка на последовательность данных
     else if(!flagNumPackage && numBit == 1 && intData >= 0)
     {
-        qDebug() << "Посылка номер " << numPackage << strData;
+        //qDebug() << "Посылка номер " << numPackage << strData;
         if(numPackage == 0 || intData == 0)
         {
             numPackage = intData;
@@ -204,7 +211,7 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if(numPackage == intData - 1)
         {
-            qDebug() << intData;
+            //qDebug() << intData;
             numPackage++;
             if(numPackage == 256) numPackage = 0;
             flagNumPackage = true;
@@ -525,7 +532,6 @@ void CheckData::parsingPackage(QByteArray data)
 //******************************************************************************
 void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
 {
-    qDebug() << "Andreila";
     if(VPattern.size() == 0) return;
     QByteArray msgControl = VPattern[1].toLocal8Bit();
     if (numChannel == 1)
@@ -728,4 +734,8 @@ void CheckData::debugTextEdit(bool status, QString debMSG)
     if(status) ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> " + debMSG);
     else ui->textEdit->append("<font color = red><\\font>" + QTime::currentTime().toString("HH:mm:ss") + " -> " + debMSG);
 }
-//
+//******************************************************************************
+void CheckData::clear_LogDialog()
+{
+    ui->textEdit->clear();
+}

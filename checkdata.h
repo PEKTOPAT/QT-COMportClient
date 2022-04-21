@@ -58,6 +58,7 @@ private slots:
     void alarmMSG();
     void debugTextEdit(bool status, QString debMSG);
     void reset_Telementry();
+    void clear_LogDialog();
 };
 
 #endif // CHECKDATA_H
