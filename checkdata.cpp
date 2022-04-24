@@ -524,18 +524,21 @@ void CheckData::parsingPackage(QByteArray data)
     if(byteMarkerSync.size() == 0) return;
     if(!flagSyncFile_1 && Channel1.size() == 2)
     {
-        //        int cnt = 0;
-        QString byte1Marker = QString("%1").arg((int)byteMarkerSync[0], 8, 2, QChar('0'));
-        //        QString byte2Marker = QString("%1").arg((int)byteMarkerSync[1], 8, 2, QChar('0'));
-        //        QString byte1Channel = QString("%1").arg((int)Channel1[0], 8, 2, QChar('0'));
-        //        QString byte2Channel = QString("%1").arg((int)Channel1[1], 8, 2, QChar('0'));
-        qDebug() << byte1Marker << byte1Marker.size();
-        QString byte1Markers = QString("%1").arg((quint8)byteMarkerSync[0], 8, 2, QChar('0'));
-        qDebug() << byte1Markers << byte1Markers.size();
-        //        qDebug() << "NUM_1_Mark" << byte1Marker;
-        //        qDebug() << "NUM_2_Mark" << byte2Marker;
-        //        qDebug() << "NUM_1" << byte1Channel;
-        //        qDebug() << "NUM_2" << byte2Channel;
+        if(Channel1[0] == byteMarkerSync[1])
+        {
+            if(Channel1[1] == byteMarkerSync[1]) flagSyncFile_1 = true;
+            else Channel1.remove(0,1);
+        }
+        else
+        {
+            Channel1[0] = (Channel1[0] << 1) | (Channel1[1] & 0x80);
+            //CH1Marker = QString("%1").arg((quint8)Channel1[0], 8, 2, QChar('0'));
+            //qDebug() << CH1Marker;
+            Channel1[0] = Channel1[0] + (Channel2[1] * 0x80);
+            //CH1Marker = QString("%1").arg((quint8)byteMarkerSync[0], 8, 2, QChar('0'));
+            //qDebug() << CH1Marker;
+        }
+
         //        for(int i = 0; i < 8; i++)
         //        {
         //            validityAll_1++;
@@ -643,7 +646,16 @@ void CheckData::openPatternFile()
     }
     byteMarkerSync.append(byteEtalon[0]);
     byteMarkerSync.append(byteEtalon[1]);
+
+    QString CH1qMarker = QString("%1").arg((quint8)byteMarkerSync[0], 8, 2, QChar('0'));
+    QString CH1qMarwker = QString("%1").arg((quint8)byteMarkerSync[1], 8, 2, QChar('0'));
+    qDebug() << "__" << CH1qMarker << CH1qMarwker;
+    byteMarkerSync[0] =  byteMarkerSync[0] << 1 | (byteMarkerSync[1] & 0x80) >> 7;
+    byteMarkerSync[0] =  byteMarkerSync[0] << 1 | (byteMarkerSync[1] & 0x80) >> 7;
+    CH1qMarker = QString("%1").arg((quint8)byteMarkerSync[0], 8, 2, QChar('0'));
+    qDebug() << "__" << CH1qMarker;
     file.close();
+   // byteMarkerSync[0] << 1 |
 }
 //******************************************************************************
 void CheckData::writePort(QByteArray data)
