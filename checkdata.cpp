@@ -23,10 +23,14 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     flagChannel_2 = false;
     numPackage = 0;
     numBit = 0;
-    flagSyncFile_1 = false;
-    flagSyncFile_2 = false;
+    flagSyncCh1 = false;
+    flagSyncCh2_1 = false;
+    flagSyncCh2_2 = false;
+    countShift_ch1 = 0;
+    countShift_ch2 = 0;
     countValidity_Ch1 = 0;
     countValidity_Ch2 = 0;
+    byteRecieveSync = 0;
     validity_1 = 0;
     validity_2 = 0;
     validityTrue_1 = 0;
@@ -84,8 +88,8 @@ void CheckData::openPort()
     flagChannel_2 = false;
     numPackage = 0;
     numBit = 0;
-    flagSyncFile_1 = false;
-    flagSyncFile_2 = false;
+    flagSyncCh1 = false;
+    flagSyncCh2_1 = false;
     Channel1.clear();
     Channel2.clear();
     countValidity_Ch1 = 0;
@@ -214,6 +218,7 @@ void CheckData::parsingPackage(QByteArray data)
         {
             //qDebug() << intData;
             numPackage++;
+            ui->textEdit->append(QString::number(numPackage));
             if(numPackage == 256) numPackage = 0;
             flagNumPackage = true;
             numBit = 2;
@@ -462,12 +467,33 @@ void CheckData::parsingPackage(QByteArray data)
     {
         if(ui->progressBar_1->value() >= ui->progressBar_1->maximum()) ui->progressBar_1->reset();
         ui->progressBar_1->setValue(ui->progressBar_1->value() + 1);
-        if(flagSyncFile_1)
-        {
-            writeFileMSG(1, data);
-            validitySignal(1, data);
-        }
         Channel1.append(data);
+        if(flagSyncCh1)
+        {
+            if(countShift_ch1 == 0)
+            {
+                writeFileMSG(1, data);
+                validitySignal(1, data);
+            }
+            else
+            {
+                for(int i = 1; i <= 8; i++)
+                {
+
+                    Channel1[2] = (Channel1[2] << 1) | (Channel1[3] & 0x80) >> 7;
+                    Channel1[2] = Channel1[2] << 1;
+                    if(i == countShift_ch1)
+                    {
+                        QByteArray send;
+                        send.append(Channel1[2]);
+                        writeFileMSG(1, send);
+                        validitySignal(1, send);
+                    }
+                }
+                Channel1[2] = Channel1[3];
+                Channel1.remove(3, 1);
+            }
+        }
         numBit = 4;
         flagChannel_1 = false;
         return;
@@ -486,7 +512,7 @@ void CheckData::parsingPackage(QByteArray data)
         {
             if(ui->progressBar_2->value() >= ui->progressBar_2->maximum()) ui->progressBar_2->reset();
             ui->progressBar_2->setValue(ui->progressBar_2->value() + 1);
-            if(flagSyncFile_2)
+            if(flagSyncCh2_1)
             {
                 writeFileMSG(2, data);
                 validitySignal(2, data);
@@ -521,48 +547,72 @@ void CheckData::parsingPackage(QByteArray data)
         return;
     }
     //Синхронизация полученного байта с эталоннами данными
-    if(byteMarkerSync.size() == 0) return;
-    if(!flagSyncFile_1 && Channel1.size() == 2)
+    if(byteMarkerSync == 0) return;
+    if(!flagSyncCh1 && (Channel1.size() == 4))
     {
-        if(Channel1[0] == byteMarkerSync[1])
+           //qDebug() << Channel1;
+        if(byteRecieveSync == 0)
         {
-            if(Channel1[1] == byteMarkerSync[1]) flagSyncFile_1 = true;
-            else Channel1.remove(0,1);
+           byteRecieveSync = Channel1[0];
+           byteRecieveSync = byteRecieveSync << 8;
+           byteRecieveSync = byteRecieveSync | Channel1[1];
+        }
+//         QString Chan0 = QString("%1").arg((quint8)Channel1[0], 8, 2, QChar('0'));
+//         QString Chan1 = QString("%1").arg((quint8)Channel1[1], 8, 2, QChar('0'));
+//         QString Chan2 = QString("%1").arg((quint8)Channel1[2], 8, 2, QChar('0'));
+//         qDebug() << "Byte recieve"  <<  Chan0 << Chan1 << Chan2;
+        if(byteRecieveSync == byteMarkerSync)
+        {
+            flagSyncCh1 = true;
+            debugTextEdit(true,"flagSyncCh1_true");
         }
         else
         {
-            Channel1[0] = (Channel1[0] << 1) | (Channel1[1] & 0x80);
-            //CH1Marker = QString("%1").arg((quint8)Channel1[0], 8, 2, QChar('0'));
-            //qDebug() << CH1Marker;
-            Channel1[0] = Channel1[0] + (Channel2[1] * 0x80);
-            //CH1Marker = QString("%1").arg((quint8)byteMarkerSync[0], 8, 2, QChar('0'));
-            //qDebug() << CH1Marker;
+            for(int i = 1; i <= 8; i++)
+            {
+                byteRecieveSync = (byteRecieveSync << 1) | ((Channel1[2] & 0x80) >> 7);
+                Channel1[2] = Channel1[2] << 1;
+                //qDebug() << "1" << byteRecieveSync;
+                if(!flagSyncCh1 && (byteRecieveSync == byteMarkerSync))
+                {
+                    qDebug() << "Sync flag UP!";
+                    flagSyncCh1 = true;
+                    countShift_ch1 = i;
+                }
+                else
+                {
+
+                QString asd;
+                asd = QString::number(byteRecieveSync,16); qDebug() << "2" << asd;
+                }
+            }
+//            QString asd;
+//            asd = QString::number(byteRecieveSync,16); qDebug() << "2" << asd;
+//            Chan0 = QString("%1").arg((quint8)Channel1[0], 8, 2, QChar('0'));
+//            Chan1 = QString("%1").arg((quint8)Channel1[1], 8, 2, QChar('0'));
+//            Chan2 = QString("%1").arg((quint8)Channel1[2], 8, 2, QChar('0'));
+//            qDebug() << "Byte after"  <<  Chan0 << Chan1 << Chan2;
+            Channel1[2] = Channel1[3];
+            Channel1.remove(3, 1);
+//            Chan0 = QString("%1").arg((quint8)Channel1[0], 8, 2, QChar('0'));
+//            Chan1 = QString("%1").arg((quint8)Channel1[1], 8, 2, QChar('0'));
+//            qDebug() << "Byte after after"  <<  Chan0 << Chan1;
+            qDebug() << Channel1.size();
         }
-
-        //        for(int i = 0; i < 8; i++)
-        //        {
-        //            validityAll_1++;
-        //            if (byteControl[i] == byteRecieve[i])
-        //            {
-        //                cnt++;
-        //            }
-        //        }
-
-        //        if(Channel1 == VPattern[0])flagSyncFile_1 = true;
-        //        else Channel1.remove(0,1);
     }
-    if(!flagSyncFile_2 && Channel2.size() == 2)
-    {
-        //        if(Channel2 == VPattern[0])flagSyncFile_2 = true;
-        //        else Channel2.remove(0,1);
-    }
-    else return;
+//    if(!flagSyncCh2_1 && Channel2.size() == 4)
+//    {
+//        //        if(Channel2 == VPattern[0])flagSyncCh2_1 = true;
+//        //        else Channel2.remove(0,1);
+//    }
+//    else return;
 
 
 }
 //******************************************************************************
 void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
 {
+    debugTextEdit(true, "inValidity");
     if(Pattern.size() == 0) return;
     QByteArray msgControl = Pattern.toLocal8Bit();
     if (numChannel == 1)
@@ -585,7 +635,7 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         else
         {
             countValidity_Ch1 = 0;
-            flagSyncFile_1 = false;
+            flagSyncCh1 = false;
             Channel1.clear();
             QByteArray enter;
             enter.append("\n");
@@ -613,7 +663,7 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         else
         {
             countValidity_Ch2 = 0;
-            flagSyncFile_2 = false;
+            flagSyncCh2_1 = false;
             Channel2.clear();
             QByteArray enter;
             enter.append("\n");
@@ -625,7 +675,8 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
 //******************************************************************************
 void CheckData::openPatternFile()
 {
-    strEtalon.clear();
+    byteEtalon.clear();
+    byteMarkerSync = 0;
     QString fileName = QFileDialog::getOpenFileName(this);
     if(fileName.isEmpty())
     {
@@ -644,18 +695,10 @@ void CheckData::openPatternFile()
     {
         byteEtalon.append(file.readAll());
     }
-    byteMarkerSync.append(byteEtalon[0]);
-    byteMarkerSync.append(byteEtalon[1]);
-
-    QString CH1qMarker = QString("%1").arg((quint8)byteMarkerSync[0], 8, 2, QChar('0'));
-    QString CH1qMarwker = QString("%1").arg((quint8)byteMarkerSync[1], 8, 2, QChar('0'));
-    qDebug() << "__" << CH1qMarker << CH1qMarwker;
-    byteMarkerSync[0] =  byteMarkerSync[0] << 1 | (byteMarkerSync[1] & 0x80) >> 7;
-    byteMarkerSync[0] =  byteMarkerSync[0] << 1 | (byteMarkerSync[1] & 0x80) >> 7;
-    CH1qMarker = QString("%1").arg((quint8)byteMarkerSync[0], 8, 2, QChar('0'));
-    qDebug() << "__" << CH1qMarker;
+    byteMarkerSync = (quint16)byteEtalon[0];
+    byteMarkerSync = byteMarkerSync << 8;
+    byteMarkerSync = byteMarkerSync | byteEtalon[1];
     file.close();
-   // byteMarkerSync[0] << 1 |
 }
 //******************************************************************************
 void CheckData::writePort(QByteArray data)
@@ -726,8 +769,8 @@ void CheckData::reset_Telementry()
     flagChannel_2 = false;
     numPackage = 0;
     numBit = 0;
-    flagSyncFile_1 = false;
-    flagSyncFile_2 = false;
+    flagSyncCh1 = false;
+    flagSyncCh2_1 = false;
     countValidity_Ch1 = 0;
     countValidity_Ch2 = 0;
     validity_1 = 0;
