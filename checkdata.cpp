@@ -24,11 +24,10 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     numPackage = 0;
     numBit = 0;
     flagSyncCh1 = false;
-    flagSyncCh2_1 = false;
-    flagSyncCh2_2 = false;
+    flagSyncCh2 = false;
     countShift_ch1 = 0;
     countShift_ch2 = 0;
-    countValidity_Ch1 = 0;
+    countValidity_Ch1 = 2;
     countValidity_Ch2 = 0;
     byteRecieveSync = 0;
     validity_1 = 0;
@@ -37,6 +36,7 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     validityAll_1 = 0;
     validityTrue_2 = 0;
     validityAll_2 = 0;
+    count = 0;
 
     ui->progressBar_1->setValue(0);
     ui->progressBar_2->setValue(0);
@@ -89,10 +89,10 @@ void CheckData::openPort()
     numPackage = 0;
     numBit = 0;
     flagSyncCh1 = false;
-    flagSyncCh2_1 = false;
+    flagSyncCh2 = false;
     Channel1.clear();
     Channel2.clear();
-    countValidity_Ch1 = 0;
+    countValidity_Ch1 = 2;
     countValidity_Ch2 = 0;
     validity_1 = 0;
     validity_2 = 0;
@@ -470,6 +470,8 @@ void CheckData::parsingPackage(QByteArray data)
         Channel1.append(data);
         if(flagSyncCh1)
         {
+            count++;
+            qDebug() << count << data;
             if(countShift_ch1 == 0)
             {
                 writeFileMSG(1, data);
@@ -477,23 +479,24 @@ void CheckData::parsingPackage(QByteArray data)
             }
             else
             {
-                for(int i = 1; i <= 8; i++)
+                for(int i = 1; i <= (8 - countShift_ch1); i++)
                 {
-
-                    Channel1[2] = (Channel1[2] << 1) | (Channel1[3] & 0x80) >> 7;
-                    Channel1[2] = Channel1[2] << 1;
-                    if(i == countShift_ch1)
-                    {
-                        QByteArray send;
-                        send.append(Channel1[2]);
-                        writeFileMSG(1, send);
-                        validitySignal(1, send);
-                    }
+                    Channel1[0] = Channel1[0] << 1 | (Channel1[1] & 0x80) >> 7;
+                    Channel1[1] =  Channel1[1] << 1;
                 }
-                Channel1[2] = Channel1[3];
-                Channel1.remove(3, 1);
+                Channel1[1] = Channel1[2];
+                for(int i = 1; i <= countShift_ch1; i ++)
+                {
+                    Channel1[0] = (Channel1[0] << 1) | ((Channel1[1] & 0x80) >> 7);
+                    Channel1[1] = Channel1[1] << 1;
+                }
+                QByteArray send;
+                send.append(Channel1[0]);
+                writeFileMSG(1, send);
+                validitySignal(1, send);
+                Channel1.remove(2,1);
+                }
             }
-        }
         numBit = 4;
         flagChannel_1 = false;
         return;
@@ -512,7 +515,7 @@ void CheckData::parsingPackage(QByteArray data)
         {
             if(ui->progressBar_2->value() >= ui->progressBar_2->maximum()) ui->progressBar_2->reset();
             ui->progressBar_2->setValue(ui->progressBar_2->value() + 1);
-            if(flagSyncCh2_1)
+            if(flagSyncCh2)
             {
                 writeFileMSG(2, data);
                 validitySignal(2, data);
@@ -550,76 +553,74 @@ void CheckData::parsingPackage(QByteArray data)
     if(byteMarkerSync == 0) return;
     if(!flagSyncCh1 && (Channel1.size() == 4))
     {
-           //qDebug() << Channel1;
         if(byteRecieveSync == 0)
         {
-           byteRecieveSync = Channel1[0];
-           byteRecieveSync = byteRecieveSync << 8;
-           byteRecieveSync = byteRecieveSync | Channel1[1];
+            byteRecieveSync = Channel1[0];
+            byteRecieveSync = byteRecieveSync << 8;
+            byteRecieveSync = byteRecieveSync | Channel1[1];
         }
-//         QString Chan0 = QString("%1").arg((quint8)Channel1[0], 8, 2, QChar('0'));
-//         QString Chan1 = QString("%1").arg((quint8)Channel1[1], 8, 2, QChar('0'));
-//         QString Chan2 = QString("%1").arg((quint8)Channel1[2], 8, 2, QChar('0'));
-//         qDebug() << "Byte recieve"  <<  Chan0 << Chan1 << Chan2;
+        qDebug() << byteRecieveSync << byteMarkerSync;
         if(byteRecieveSync == byteMarkerSync)
         {
             flagSyncCh1 = true;
-            debugTextEdit(true,"flagSyncCh1_true");
+            debugTextEdit(true,"Nice SyncCh1 Ok!");
         }
         else
         {
             for(int i = 1; i <= 8; i++)
             {
+                if(flagSyncCh1) break;
                 byteRecieveSync = (byteRecieveSync << 1) | ((Channel1[2] & 0x80) >> 7);
                 Channel1[2] = Channel1[2] << 1;
-                //qDebug() << "1" << byteRecieveSync;
                 if(!flagSyncCh1 && (byteRecieveSync == byteMarkerSync))
                 {
-                    qDebug() << "Sync flag UP!";
-                    flagSyncCh1 = true;
+                    flagSyncCh1 = true; qDebug() <<"Flag UP sync";
                     countShift_ch1 = i;
-                }
-                else
-                {
-
-                QString asd;
-                asd = QString::number(byteRecieveSync,16); qDebug() << "2" << asd;
+                    for(int i = 1; i <= (8 - countShift_ch1); i++)
+                    {
+                        Channel1[0] = Channel1[0] << 1 | (Channel1[2] & 0x80) >> 7;
+                        Channel1[2] =  Channel1[2] << 1;
+                    }
+                    Channel1[1] = Channel1[3];
+                    for(int i = 1; i <= countShift_ch1; i ++)
+                    {
+                        Channel1[0] = (Channel1[0] << 1) | ((Channel1[1] & 0x80) >> 7);
+                        Channel1[1] = Channel1[1] << 1;
+                    }
+                    Channel1.remove(2, 2);
+                    QByteArray send;
+                    send.append(Channel1[0]);
+                    writeFileMSG(1, send);
+                    validitySignal(1, send);
                 }
             }
-//            QString asd;
-//            asd = QString::number(byteRecieveSync,16); qDebug() << "2" << asd;
-//            Chan0 = QString("%1").arg((quint8)Channel1[0], 8, 2, QChar('0'));
-//            Chan1 = QString("%1").arg((quint8)Channel1[1], 8, 2, QChar('0'));
-//            Chan2 = QString("%1").arg((quint8)Channel1[2], 8, 2, QChar('0'));
-//            qDebug() << "Byte after"  <<  Chan0 << Chan1 << Chan2;
-            Channel1[2] = Channel1[3];
-            Channel1.remove(3, 1);
-//            Chan0 = QString("%1").arg((quint8)Channel1[0], 8, 2, QChar('0'));
-//            Chan1 = QString("%1").arg((quint8)Channel1[1], 8, 2, QChar('0'));
-//            qDebug() << "Byte after after"  <<  Chan0 << Chan1;
-            qDebug() << Channel1.size();
+            if(!flagSyncCh1)
+            {
+                Channel1[2] = Channel1[3];
+                Channel1.remove(3, 1);
+            }
         }
     }
-//    if(!flagSyncCh2_1 && Channel2.size() == 4)
-//    {
-//        //        if(Channel2 == VPattern[0])flagSyncCh2_1 = true;
-//        //        else Channel2.remove(0,1);
-//    }
-//    else return;
+    //    if(!flagSyncCh2 && Channel2.size() == 4)
+    //    {
+    //        //        if(Channel2 == VPattern[0])flagSyncCh2 = true;
+    //        //        else Channel2.remove(0,1);
+    //    }
+    //    else return;
 
 
 }
 //******************************************************************************
 void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
 {
-    debugTextEdit(true, "inValidity");
-    if(Pattern.size() == 0) return;
-    QByteArray msgControl = Pattern.toLocal8Bit();
+    if(byteMarkerSync == 0) return;
+    QByteArray msgControl = byteEtalon;
     if (numChannel == 1)
     {
         int cnt = 0;
-        QString byteControl = QString("%1").arg((int)msgControl.at(countValidity_Ch1), 8, 2, QChar('0'));
-        QString byteRecieve = QString("%1").arg((int)byte_msg.at(0), 8, 2, QChar('0'));
+        QString byteControl = QString("%1").arg((quint8)msgControl.at(countValidity_Ch1), 8, 2, QChar('0'));
+        QString byteRecieve = QString("%1").arg((quint8)byte_msg.at(0), 8, 2, QChar('0'));
+        qDebug() << byteControl << byteRecieve;
         for(int i = 0; i < 8; i++)
         {
             validityAll_1++;
@@ -635,8 +636,6 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         else
         {
             countValidity_Ch1 = 0;
-            flagSyncCh1 = false;
-            Channel1.clear();
             QByteArray enter;
             enter.append("\n");
             writeFileMSG(1, enter);
@@ -663,7 +662,7 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         else
         {
             countValidity_Ch2 = 0;
-            flagSyncCh2_1 = false;
+            flagSyncCh2 = false;
             Channel2.clear();
             QByteArray enter;
             enter.append("\n");
@@ -770,7 +769,7 @@ void CheckData::reset_Telementry()
     numPackage = 0;
     numBit = 0;
     flagSyncCh1 = false;
-    flagSyncCh2_1 = false;
+    flagSyncCh2 = false;
     countValidity_Ch1 = 0;
     countValidity_Ch2 = 0;
     validity_1 = 0;

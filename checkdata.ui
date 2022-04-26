@@ -407,7 +407,7 @@
              <item row="1" column="0">
               <widget class="QProgressBar" name="progressBar_2">
                <property name="maximum">
-                <number>94</number>
+                <number>768</number>
                </property>
                <property name="value">
                 <number>0</number>
@@ -521,8 +521,11 @@
              </item>
              <item row="1" column="0">
               <widget class="QProgressBar" name="progressBar_1">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="maximum">
-                <number>94</number>
+                <number>768</number>
                </property>
                <property name="value">
                 <number>0</number>
@@ -628,7 +631,7 @@
      <x>0</x>
      <y>0</y>
      <width>481</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

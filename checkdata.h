@@ -32,15 +32,11 @@ private:
     quint16 byteMarkerSync;
     QByteArray Channel1;
     QByteArray Channel2;
-    QString Pattern;
-    QString strEtalon;
     QByteArray byteEtalon;
-    QString strMarkerSync;
     bool flagSyncCh1;
+    bool flagSyncCh2;
     int countShift_ch1;
     int countShift_ch2;
-    bool flagSyncCh2_1;
-    bool flagSyncCh2_2;
     int countValidity_Ch1;
     int countValidity_Ch2;
     double validity_1;
@@ -49,6 +45,7 @@ private:
     double validity_2;
     double validityTrue_2;
     double validityAll_2;
+    int count;
 
 
 private slots:
