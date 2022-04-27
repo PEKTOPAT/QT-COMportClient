@@ -45,7 +45,6 @@ private:
     double validity_2;
     double validityTrue_2;
     double validityAll_2;
-    int count;
 
 
 private slots:

@@ -28,7 +28,7 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     countShift_ch1 = 0;
     countShift_ch2 = 0;
     countValidity_Ch1 = 2;
-    countValidity_Ch2 = 0;
+    countValidity_Ch2 = 2;
     byteRecieveSync = 0;
     validity_1 = 0;
     validity_2 = 0;
@@ -36,7 +36,6 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     validityAll_1 = 0;
     validityTrue_2 = 0;
     validityAll_2 = 0;
-    count = 0;
 
     ui->progressBar_1->setValue(0);
     ui->progressBar_2->setValue(0);
@@ -93,13 +92,16 @@ void CheckData::openPort()
     Channel1.clear();
     Channel2.clear();
     countValidity_Ch1 = 2;
-    countValidity_Ch2 = 0;
+    countValidity_Ch2 = 2;
     validity_1 = 0;
     validity_2 = 0;
     validityTrue_1 = 0;
     validityAll_1 = 0;
     validityTrue_2 = 0;
     validityAll_2 = 0;
+    byteRecieveSync = 0;
+    countShift_ch1 = 0;
+    countShift_ch2 = 0;
 
     port->setPortName(ui->comboBox->currentText());
     port->open(QIODevice::ReadWrite);
@@ -120,7 +122,6 @@ void CheckData::closePort()
     if (!port) return;
     if(port->isOpen())
     {
-
         port->close();
         debugTextEdit(true, "Disconnected");
         ui->label_status->setText("Disconnected");
@@ -137,6 +138,27 @@ void CheckData::closePort()
         ui->label_corr_2->setText(" ");
         ui->progressBar_1->setValue(0);
         ui->progressBar_2->setValue(0);
+        flagPackage = false;
+        flagNumPackage = false;
+        flagChannel_1 = false;
+        flagChannel_2 = false;
+        flagSyncCh1 = false;
+        flagSyncCh2 = false;
+        numPackage = 0;
+        numBit = 0;
+        Channel1.clear();
+        Channel2.clear();
+        countValidity_Ch1 = 2;
+        countValidity_Ch2 = 2;
+        validity_1 = 0;
+        validity_2 = 0;
+        validityTrue_1 = 0;
+        validityAll_1 = 0;
+        validityTrue_2 = 0;
+        validityAll_2 = 0;
+        byteRecieveSync = 0;
+        countShift_ch1 = 0;
+        countShift_ch2 = 0;
 
     }
     else return;
@@ -177,7 +199,7 @@ void CheckData::parsingPackage(QByteArray data)
         strData = strData+QString("%1").arg(intData)+tab;
     }
     //+++
-    ui->textEdit->append(HEX);
+    //ui->textEdit->append(HEX);
     //_++
     strData.resize(strData.length() - 1);
     //qDebug() <<"Полученное сообщение "<< strData;
@@ -210,13 +232,10 @@ void CheckData::parsingPackage(QByteArray data)
             numPackage = intData;
             numBit = 2;
             flagNumPackage = true;
-            ui->progressBar_1->setValue(intData);
-            ui->progressBar_2->setValue(intData);
             return;
         }
         else if(numPackage == intData - 1)
         {
-            //qDebug() << intData;
             numPackage++;
             ui->textEdit->append(QString::number(numPackage));
             if(numPackage == 256) numPackage = 0;
@@ -470,8 +489,6 @@ void CheckData::parsingPackage(QByteArray data)
         Channel1.append(data);
         if(flagSyncCh1)
         {
-            count++;
-            qDebug() << count << data;
             if(countShift_ch1 == 0)
             {
                 writeFileMSG(1, data);
@@ -559,11 +576,12 @@ void CheckData::parsingPackage(QByteArray data)
             byteRecieveSync = byteRecieveSync << 8;
             byteRecieveSync = byteRecieveSync | Channel1[1];
         }
-        qDebug() << byteRecieveSync << byteMarkerSync;
+        //qDebug() << byteRecieveSync << byteMarkerSync;
         if(byteRecieveSync == byteMarkerSync)
         {
             flagSyncCh1 = true;
-            debugTextEdit(true,"Nice SyncCh1 Ok!");
+            ui->progressBar_1->setValue(0);
+            ui->progressBar_2->setValue(0);
         }
         else
         {
@@ -574,8 +592,11 @@ void CheckData::parsingPackage(QByteArray data)
                 Channel1[2] = Channel1[2] << 1;
                 if(!flagSyncCh1 && (byteRecieveSync == byteMarkerSync))
                 {
-                    flagSyncCh1 = true; qDebug() <<"Flag UP sync";
+                    flagSyncCh1 = true;
+                    debugTextEdit(true, "Synchronised");
                     countShift_ch1 = i;
+                    ui->progressBar_1->setValue(0);
+                    ui->progressBar_2->setValue(0);
                     for(int i = 1; i <= (8 - countShift_ch1); i++)
                     {
                         Channel1[0] = Channel1[0] << 1 | (Channel1[2] & 0x80) >> 7;
@@ -620,7 +641,7 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         int cnt = 0;
         QString byteControl = QString("%1").arg((quint8)msgControl.at(countValidity_Ch1), 8, 2, QChar('0'));
         QString byteRecieve = QString("%1").arg((quint8)byte_msg.at(0), 8, 2, QChar('0'));
-        qDebug() << byteControl << byteRecieve;
+        //qDebug() << byteControl << byteRecieve;
         for(int i = 0; i < 8; i++)
         {
             validityAll_1++;
@@ -639,7 +660,6 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             QByteArray enter;
             enter.append("\n");
             writeFileMSG(1, enter);
-            ui->progressBar_1->setValue(0);
         }
     }
     else if(numChannel == 2)
@@ -667,7 +687,6 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             QByteArray enter;
             enter.append("\n");
             writeFileMSG(2, enter);
-            ui->progressBar_2->setValue(0);
         }
     }
 }
@@ -766,18 +785,24 @@ void CheckData::reset_Telementry()
     flagNumPackage = false;
     flagChannel_1 = false;
     flagChannel_2 = false;
-    numPackage = 0;
-    numBit = 0;
     flagSyncCh1 = false;
     flagSyncCh2 = false;
-    countValidity_Ch1 = 0;
-    countValidity_Ch2 = 0;
+    numPackage = 0;
+    numBit = 0;
+    countValidity_Ch1 = 2;
+    countValidity_Ch2 = 2;
     validity_1 = 0;
     validity_2 = 0;
     validityTrue_1 = 0;
     validityAll_1 = 0;
     validityTrue_2 = 0;
     validityAll_2 = 0;
+    Channel1.clear();
+    Channel2.clear();
+    byteRecieveSync = 0;
+    countShift_ch1 = 0;
+    countShift_ch2 = 0;
+
     ui->progressBar_1->setValue(0);
     ui->progressBar_2->setValue(0);
     ui->label_statusPort_1->setText(" ");
@@ -788,6 +813,7 @@ void CheckData::reset_Telementry()
     ui->label_rate_2->setText(" ");
     ui->label_corr_1->setText(" ");
     ui->label_corr_2->setText(" ");
+
 }
 //******************************************************************************
 void CheckData::alarmMSG()
