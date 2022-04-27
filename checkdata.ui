@@ -232,6 +232,48 @@
                <string>RESET WORK</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_4">
+               <item row="1" column="1">
+                <widget class="QLabel" name="label_10">
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::PreventContextMenu</enum>
+                 </property>
+                 <property name="text">
+                  <string>State:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <spacer name="horizontalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>33</width>
+                   <height>18</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="1" column="2">
+                <widget class="QPushButton" name="push_reset_tlm">
+                 <property name="maximumSize">
+                  <size>
+                   <width>45</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::DefaultContextMenu</enum>
+                 </property>
+                 <property name="text">
+                  <string>Reset</string>
+                 </property>
+                </widget>
+               </item>
                <item row="0" column="0">
                 <spacer name="horizontalSpacer_3">
                  <property name="orientation">
@@ -260,48 +302,6 @@
                </item>
                <item row="0" column="2">
                 <widget class="QPushButton" name="push_reset_arduin">
-                 <property name="maximumSize">
-                  <size>
-                   <width>45</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="contextMenuPolicy">
-                  <enum>Qt::DefaultContextMenu</enum>
-                 </property>
-                 <property name="text">
-                  <string>Reset</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <spacer name="horizontalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>33</width>
-                   <height>18</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="1" column="1">
-                <widget class="QLabel" name="label_10">
-                 <property name="contextMenuPolicy">
-                  <enum>Qt::PreventContextMenu</enum>
-                 </property>
-                 <property name="text">
-                  <string>State app:</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="2">
-                <widget class="QPushButton" name="push_reset_tlm">
                  <property name="maximumSize">
                   <size>
                    <width>45</width>
@@ -455,6 +455,9 @@
                     <property name="text">
                      <string/>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
                    </widget>
                   </item>
                  </layout>
@@ -478,6 +481,9 @@
                    <widget class="QLabel" name="label_nBitERR_CH1">
                     <property name="text">
                      <string/>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -508,6 +514,9 @@
                    <widget class="QLabel" name="label_corr_1">
                     <property name="text">
                      <string/>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -625,6 +634,9 @@
                     <property name="text">
                      <string/>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
                    </widget>
                   </item>
                  </layout>
@@ -640,7 +652,7 @@
                      </size>
                     </property>
                     <property name="text">
-                     <string>Num bit ERR:</string>
+                     <string>Num bit ERR (E):</string>
                     </property>
                    </widget>
                   </item>
@@ -648,6 +660,9 @@
                    <widget class="QLabel" name="label_nBitERR_CH2">
                     <property name="text">
                      <string/>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -670,7 +685,7 @@
                      </size>
                     </property>
                     <property name="text">
-                     <string>Eb/No :</string>
+                     <string>E/N :</string>
                     </property>
                    </widget>
                   </item>
@@ -678,6 +693,9 @@
                    <widget class="QLabel" name="label_corr_2">
                     <property name="text">
                      <string/>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                     </property>
                    </widget>
                   </item>

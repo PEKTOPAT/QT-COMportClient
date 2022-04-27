@@ -202,7 +202,7 @@ void CheckData::parsingPackage(QByteArray data)
         strData = strData+QString("%1").arg(intData)+tab;
     }
     //+++
-    ui->textEdit->append(HEX);
+    //ui->textEdit->append(HEX);
     //_++
     strData.resize(strData.length() - 1);
     //qDebug() <<"Полученное сообщение "<< strData;
@@ -240,7 +240,6 @@ void CheckData::parsingPackage(QByteArray data)
         else if(numPackage == intData - 1)
         {
             numPackage++;
-            ui->textEdit->append(QString::number(numPackage));
             if(numPackage == 256) numPackage = 0;
             flagNumPackage = true;
             numBit = 2;
@@ -487,8 +486,8 @@ void CheckData::parsingPackage(QByteArray data)
     //Если получен 3 байт и поднят флаг информации 0-го, то происходит запись инф
     else if (flagChannel_1 && numBit == 3)
     {
-        if(ui->progressBar_1->value() >= ui->progressBar_1->maximum()) ui->progressBar_1->reset();
-        ui->progressBar_1->setValue(ui->progressBar_1->value() + 1);
+//        if(ui->progressBar_1->value() >= ui->progressBar_1->maximum()) ui->progressBar_1->reset();
+//        ui->progressBar_1->setValue(ui->progressBar_1->value() + 1);
         Channel1.append(data);
         if(flagSyncCh1)
         {
@@ -533,8 +532,8 @@ void CheckData::parsingPackage(QByteArray data)
     {
         if(flagChannel_2)
         {
-            if(ui->progressBar_2->value() >= ui->progressBar_2->maximum()) ui->progressBar_2->reset();
-            ui->progressBar_2->setValue(ui->progressBar_2->value() + 1);
+//            if(ui->progressBar_2->value() >= ui->progressBar_2->maximum()) ui->progressBar_2->reset();
+//            ui->progressBar_2->setValue(ui->progressBar_2->value() + 1);
             if(flagSyncCh2)
             {
                 writeFileMSG(2, data);
@@ -704,14 +703,16 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             validity_1 = (validityAll_1 - validityTrue_1 + 1)/validityAll_1;
             ui->label_nBit_CH1->setText(QString::number(validityAll_1));
             ui->label_nBitERR_CH1->setText(QString::number((validityAll_1 - validityTrue_1)));
-            ui->label_corr_1->setText(QString::number(validity_1));
+            //ui->label_corr_1->setText(QString::number(validity_1));
+            ui->label_corr_1->setText(QString::number(validity_1,'e',4));
         }
         else
         {
             validity_1 = (validityAll_1 - validityTrue_1)/validityAll_1;
             ui->label_nBit_CH1->setText(QString::number(validityAll_1));
             ui->label_nBitERR_CH1->setText(QString::number((validityAll_1 - validityTrue_1)));
-            ui->label_corr_1->setText(QString::number(validity_1));
+            //ui->label_corr_1->setText(QString::number(validity_1));
+            ui->label_corr_1->setText(QString::number(validity_1,'e',4));
         }
         if(countValidity_Ch1 <  (msgControl.size() - 1)) countValidity_Ch1++;
         else
@@ -741,14 +742,16 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             validity_2 = (validityAll_2 - validityTrue_2 + 1)/validityAll_2;
             ui->label_nBit_CH2->setText(QString::number(validityAll_2));
             ui->label_nBitERR_CH2->setText(QString::number((validityAll_2 - validityTrue_2)));
-            ui->label_corr_2->setText(QString::number(validity_2));
+            //ui->label_corr_2->setText(QString::number(validity_2));
+            ui->label_corr_2->setText(QString::number(validity_2,'f',4));
         }
         else
         {
             validity_2 = (validityAll_2 - validityTrue_2)/validityAll_2;
             ui->label_nBit_CH2->setText(QString::number(validityAll_2));
             ui->label_nBitERR_CH2->setText(QString::number((validityAll_2 - validityTrue_2)));
-            ui->label_corr_2->setText(QString::number(validity_2));
+            //ui->label_corr_2->setText(QString::number(validity_2));
+            ui->label_corr_2->setText(QString::number(validity_2,'f',4));
         }
     }
     if(countValidity_Ch2 <  (msgControl.size() - 1)) countValidity_Ch2++;
@@ -857,6 +860,7 @@ void CheckData::reset_Arduino()
 //******************************************************************************
 void CheckData::reset_Telementry()
 {
+    reset_Arduino();
     flagPackage = false;
     flagNumPackage = false;
     flagChannel_1 = false;
