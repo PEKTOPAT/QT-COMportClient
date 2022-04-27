@@ -107,8 +107,10 @@
                 </spacer>
                </item>
               </layout>
-              <zorder>label_9</zorder>
-              <zorder>push_reset_arduin</zorder>
+              <zorder>label</zorder>
+              <zorder>push_download</zorder>
+              <zorder>label_2</zorder>
+              <zorder>push_clear_FileLog</zorder>
               <zorder>horizontalSpacer</zorder>
              </widget>
             </item>
@@ -316,12 +318,6 @@
                </item>
               </layout>
               <zorder>label_9</zorder>
-              <zorder>label_10</zorder>
-              <zorder>horizontalSpacer_4</zorder>
-              <zorder>push_reset_arduin</zorder>
-              <zorder>horizontalSpacer_3</zorder>
-              <zorder>push_reset_tlm</zorder>
-              <zorder>label_9</zorder>
               <zorder>horizontalSpacer_4</zorder>
               <zorder>label_10</zorder>
               <zorder>push_reset_arduin</zorder>
@@ -439,7 +435,7 @@
                    <widget class="QLabel" name="label_18">
                     <property name="minimumSize">
                      <size>
-                      <width>45</width>
+                      <width>56</width>
                       <height>0</height>
                      </size>
                     </property>
@@ -450,7 +446,7 @@
                      </size>
                     </property>
                     <property name="text">
-                     <string>Num bit:</string>
+                     <string>Num bit (N):</string>
                     </property>
                    </widget>
                   </item>
@@ -474,7 +470,7 @@
                      </size>
                     </property>
                     <property name="text">
-                     <string>Num bit ERR:</string>
+                     <string>Num bit ERR (E):</string>
                     </property>
                    </widget>
                   </item>
@@ -504,7 +500,7 @@
                      </size>
                     </property>
                     <property name="text">
-                     <string>Eb/No :</string>
+                     <string>E/N :</string>
                     </property>
                    </widget>
                   </item>
@@ -609,7 +605,7 @@
                    <widget class="QLabel" name="label_19">
                     <property name="minimumSize">
                      <size>
-                      <width>45</width>
+                      <width>56</width>
                       <height>0</height>
                      </size>
                     </property>
@@ -620,7 +616,7 @@
                      </size>
                     </property>
                     <property name="text">
-                     <string>Num bit:</string>
+                     <string>Num bit (N):</string>
                     </property>
                    </widget>
                   </item>

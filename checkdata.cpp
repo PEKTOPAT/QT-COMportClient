@@ -202,7 +202,7 @@ void CheckData::parsingPackage(QByteArray data)
         strData = strData+QString("%1").arg(intData)+tab;
     }
     //+++
-    //ui->textEdit->append(HEX);
+    ui->textEdit->append(HEX);
     //_++
     strData.resize(strData.length() - 1);
     //qDebug() <<"Полученное сообщение "<< strData;
@@ -699,8 +699,20 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             }
         }
         validityTrue_1 = validityTrue_1 + cnt;
-        validity_1 = validityTrue_1 / validityAll_1;
-        ui->label_corr_1->setText(QString::number(validity_1));
+        if(validityAll_1 == validityTrue_1)
+        {
+            validity_1 = (validityAll_1 - validityTrue_1 + 1)/validityAll_1;
+            ui->label_nBit_CH1->setText(QString::number(validityAll_1));
+            ui->label_nBitERR_CH1->setText(QString::number((validityAll_1 - validityTrue_1)));
+            ui->label_corr_1->setText(QString::number(validity_1));
+        }
+        else
+        {
+            validity_1 = (validityAll_1 - validityTrue_1)/validityAll_1;
+            ui->label_nBit_CH1->setText(QString::number(validityAll_1));
+            ui->label_nBitERR_CH1->setText(QString::number((validityAll_1 - validityTrue_1)));
+            ui->label_corr_1->setText(QString::number(validity_1));
+        }
         if(countValidity_Ch1 <  (msgControl.size() - 1)) countValidity_Ch1++;
         else
         {
@@ -724,18 +736,30 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             }
         }
         validityTrue_2 = validityTrue_2 + cnt;
-        validity_2 = validityTrue_2 / validityAll_2;
-        ui->label_corr_2->setText(QString::number(validity_2));
-        if(countValidity_Ch2 <  (msgControl.size() - 1)) countValidity_Ch2++;
+        if(validityAll_2 == validityTrue_2)
+        {
+            validity_2 = (validityAll_2 - validityTrue_2 + 1)/validityAll_2;
+            ui->label_nBit_CH2->setText(QString::number(validityAll_2));
+            ui->label_nBitERR_CH2->setText(QString::number((validityAll_2 - validityTrue_2)));
+            ui->label_corr_2->setText(QString::number(validity_2));
+        }
         else
         {
-            countValidity_Ch2 = 0;
-            flagSyncCh2 = false;
-            Channel2.clear();
-            QByteArray enter;
-            enter.append("\n");
-            writeFileMSG(2, enter);
+            validity_2 = (validityAll_2 - validityTrue_2)/validityAll_2;
+            ui->label_nBit_CH2->setText(QString::number(validityAll_2));
+            ui->label_nBitERR_CH2->setText(QString::number((validityAll_2 - validityTrue_2)));
+            ui->label_corr_2->setText(QString::number(validity_2));
         }
+    }
+    if(countValidity_Ch2 <  (msgControl.size() - 1)) countValidity_Ch2++;
+    else
+    {
+        countValidity_Ch2 = 0;
+        flagSyncCh2 = false;
+        Channel2.clear();
+        QByteArray enter;
+        enter.append("\n");
+        writeFileMSG(2, enter);
     }
 }
 //******************************************************************************
