@@ -28,8 +28,10 @@ private:
     bool flagNumPackage;
     int numPackage;
     int numBit;
-    quint16 byteRecieveSync;
-    quint16 byteMarkerSync;
+    quint16 byteRecieveSync_CH1;
+    quint16 byteRecieveSync_CH2;
+    quint16 byteMarkerSync_CH1;
+    quint16 byteMarkerSync_CH2;
     QByteArray Channel1;
     QByteArray Channel2;
     QByteArray byteEtalon;
