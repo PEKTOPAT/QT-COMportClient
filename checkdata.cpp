@@ -900,6 +900,8 @@ void CheckData::reset_Telementry()
     ui->label_statusPort_2->setText(" ");
     ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
     ui->label_statusPort_2->setStyleSheet("QLabel {font-weight: bold; color : black; }");
+    ui->label_info_sync1->setStyleSheet("QLabel {font-weight: bold; color : red; }");
+    ui->label_info_sync2->setStyleSheet("QLabel {font-weight: bold; color : red; }");
     ui->label_rate_1->setText(" ");
     ui->label_rate_2->setText(" ");
     ui->label_corr_1->setText(" ");
