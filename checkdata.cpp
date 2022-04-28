@@ -38,9 +38,13 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     validityTrue_2 = 0;
     validityAll_2 = 0;
 
-    ui->progressBar_1->setValue(0);
-    ui->progressBar_2->setValue(0);
+//    ui->progressBar_1->setValue(0);
+//    ui->progressBar_2->setValue(0);
     ui->comboBox_2->addItem("115200");
+    ui->label_info_sync1->setText("Sync Ch1");
+    ui->label_info_sync1->setStyleSheet("QLabel {font-weight: bold; color : red; }");
+    ui->label_info_sync2->setText("Sync Ch2");
+    ui->label_info_sync2->setStyleSheet("QLabel {font-weight: bold; color : red; }");
 
     port = new QSerialPort(this);
     port->setDataBits(QSerialPort::Data8);
@@ -138,8 +142,12 @@ void CheckData::closePort()
         ui->label_rate_2->setText(" ");
         ui->label_corr_1->setText(" ");
         ui->label_corr_2->setText(" ");
-        ui->progressBar_1->setValue(0);
-        ui->progressBar_2->setValue(0);
+        ui->label_nBit_CH1->setText(" ");
+        ui->label_nBit_CH2->setText(" ");
+        ui->label_nBitERR_CH1->setText(" ");
+        ui->label_nBitERR_CH2->setText(" ");
+//        ui->progressBar_1->setValue(0);
+//        ui->progressBar_2->setValue(0);
         flagPackage = false;
         flagNumPackage = false;
         flagChannel_1 = false;
@@ -581,7 +589,7 @@ void CheckData::parsingPackage(QByteArray data)
         if(byteRecieveSync_CH1 == byteMarkerSync_CH1)
         {
             flagSyncCh1 = true;
-            ui->progressBar_1->setValue(0);
+            //ui->progressBar_1->setValue(0);
         }
         else
         {
@@ -593,9 +601,10 @@ void CheckData::parsingPackage(QByteArray data)
                 if(!flagSyncCh1 && (byteRecieveSync_CH1 == byteMarkerSync_CH1))
                 {
                     flagSyncCh1 = true;
+                    ui->label_info_sync1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
                     debugTextEdit(true, "Synchronised Ch1");
                     countShift_ch1 = i;
-                    ui->progressBar_1->setValue(0);
+                    //ui->progressBar_1->setValue(0);
                     for(int i = 1; i <= (8 - countShift_ch1); i++)
                     {
                         Channel1[0] = Channel1[0] << 1 | (Channel1[2] & 0x80) >> 7;
@@ -634,7 +643,7 @@ void CheckData::parsingPackage(QByteArray data)
         if(byteRecieveSync_CH2 == byteMarkerSync_CH2)
         {
             flagSyncCh2 = true;
-            ui->progressBar_2->setValue(0);
+            //ui->progressBar_2->setValue(0);
         }
         else
         {
@@ -646,9 +655,10 @@ void CheckData::parsingPackage(QByteArray data)
                 if(!flagSyncCh2 && (byteRecieveSync_CH2 == byteMarkerSync_CH2))
                 {
                     flagSyncCh2 = true;
+                    ui->label_info_sync2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
                     debugTextEdit(true, "Synchronised Ch2");
                     countShift_ch2 = i;
-                    ui->progressBar_2->setValue(0);
+                    //ui->progressBar_2->setValue(0);
                     for(int i = 1; i <= (8 - countShift_ch2); i++)
                     {
                         Channel2[0] = Channel2[0] << 1 | (Channel2[2] & 0x80) >> 7;
@@ -884,8 +894,8 @@ void CheckData::reset_Telementry()
     countShift_ch1 = 0;
     countShift_ch2 = 0;
 
-    ui->progressBar_1->setValue(0);
-    ui->progressBar_2->setValue(0);
+//    ui->progressBar_1->setValue(0);
+//    ui->progressBar_2->setValue(0);
     ui->label_statusPort_1->setText(" ");
     ui->label_statusPort_2->setText(" ");
     ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
@@ -894,7 +904,10 @@ void CheckData::reset_Telementry()
     ui->label_rate_2->setText(" ");
     ui->label_corr_1->setText(" ");
     ui->label_corr_2->setText(" ");
-
+    ui->label_nBit_CH1->setText(" ");
+    ui->label_nBit_CH2->setText(" ");
+    ui->label_nBitERR_CH1->setText(" ");
+    ui->label_nBitERR_CH2->setText(" ");
 }
 //******************************************************************************
 void CheckData::alarmMSG()
