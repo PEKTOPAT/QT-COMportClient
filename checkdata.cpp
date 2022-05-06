@@ -38,8 +38,8 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     validityTrue_2 = 0;
     validityAll_2 = 0;
 
-//    ui->progressBar_1->setValue(0);
-//    ui->progressBar_2->setValue(0);
+    //    ui->progressBar_1->setValue(0);
+    //    ui->progressBar_2->setValue(0);
     ui->comboBox_2->addItem("115200");
     ui->label_info_sync1->setText("Sync Ch1");
     ui->label_info_sync1->setStyleSheet("QLabel {font-weight: bold; color : red; }");
@@ -57,7 +57,7 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     connect(ui->push_disconnect,SIGNAL(clicked()),this, SLOT(closePort()));
     connect(ui->comboBox_2, SIGNAL(currentIndexChanged(int)), this, SLOT(setRate_slot(int)));
     connect(port, SIGNAL(readyRead()), this, SLOT(readPort()));
-    connect(ui->push_reset_arduin, SIGNAL(clicked(bool)), this, SLOT(reset_Arduino()));
+    //connect(ui->push_reset_arduin, SIGNAL(clicked(bool)), this, SLOT(reset_Arduino()));
     connect(ui->push_reset_tlm, SIGNAL(clicked(bool)), this, SLOT(reset_Telementry()));
     connect(ui->push_download, SIGNAL(clicked(bool)), this, SLOT(openPatternFile()));
     connect(ui->push_clear_FileLog, SIGNAL(clicked(bool)), this, SLOT(clearFileMSG()));
@@ -146,8 +146,8 @@ void CheckData::closePort()
         ui->label_nBit_CH2->setText(" ");
         ui->label_nBitERR_CH1->setText(" ");
         ui->label_nBitERR_CH2->setText(" ");
-//        ui->progressBar_1->setValue(0);
-//        ui->progressBar_2->setValue(0);
+        //        ui->progressBar_1->setValue(0);
+        //        ui->progressBar_2->setValue(0);
         flagPackage = false;
         flagNumPackage = false;
         flagChannel_1 = false;
@@ -494,8 +494,8 @@ void CheckData::parsingPackage(QByteArray data)
     //Если получен 3 байт и поднят флаг информации 0-го, то происходит запись инф
     else if (flagChannel_1 && numBit == 3)
     {
-//        if(ui->progressBar_1->value() >= ui->progressBar_1->maximum()) ui->progressBar_1->reset();
-//        ui->progressBar_1->setValue(ui->progressBar_1->value() + 1);
+        //        if(ui->progressBar_1->value() >= ui->progressBar_1->maximum()) ui->progressBar_1->reset();
+        //        ui->progressBar_1->setValue(ui->progressBar_1->value() + 1);
         Channel1.append(data);
         if(flagSyncCh1)
         {
@@ -540,14 +540,36 @@ void CheckData::parsingPackage(QByteArray data)
     {
         if(flagChannel_2)
         {
-//            if(ui->progressBar_2->value() >= ui->progressBar_2->maximum()) ui->progressBar_2->reset();
-//            ui->progressBar_2->setValue(ui->progressBar_2->value() + 1);
+            //            if(ui->progressBar_2->value() >= ui->progressBar_2->maximum()) ui->progressBar_2->reset();
+            //            ui->progressBar_2->setValue(ui->progressBar_2->value() + 1);
+            Channel2.append(data);
             if(flagSyncCh2)
             {
-                writeFileMSG(2, data);
-                validitySignal(2, data);
+                if(countShift_ch2 == 0)
+                {
+                    writeFileMSG(2, data);
+                    validitySignal(2, data);
+                }
+                else
+                {
+                    for(int i = 1; i <= (8 - countShift_ch2); i++)
+                    {
+                        Channel2[0] = Channel2[0] << 1 | (Channel2[1] & 0x80) >> 7;
+                        Channel2[1] =  Channel2[1] << 1;
+                    }
+                    Channel2[1] = Channel2[2];
+                    for(int i = 1; i <= countShift_ch2; i ++)
+                    {
+                        Channel2[0] = (Channel2[0] << 1) | ((Channel2[1] & 0x80) >> 7);
+                        Channel2[1] = Channel2[1] << 1;
+                    }
+                    QByteArray send2;
+                    send2.append(Channel2[0]);
+                    writeFileMSG(1, send2);
+                    validitySignal(1, send2);
+                    Channel2.remove(2,1);
+                }
             }
-            Channel2.append(data);
             flagPackage = false;
             flagNumPackage = false;
             numBit = 0;
@@ -728,9 +750,9 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         else
         {
             countValidity_Ch1 = 0;
-            QByteArray enter;
-            enter.append("\n");
-            writeFileMSG(1, enter);
+//            QByteArray enter;
+//            enter.append("\n");
+//            writeFileMSG(1, enter);
         }
     }
     else if(numChannel == 2)
@@ -770,9 +792,9 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         countValidity_Ch2 = 0;
         flagSyncCh2 = false;
         Channel2.clear();
-        QByteArray enter;
-        enter.append("\n");
-        writeFileMSG(2, enter);
+//        QByteArray enter;
+//        enter.append("\n");
+//        writeFileMSG(2, enter);
     }
 }
 //******************************************************************************
@@ -894,8 +916,8 @@ void CheckData::reset_Telementry()
     countShift_ch1 = 0;
     countShift_ch2 = 0;
 
-//    ui->progressBar_1->setValue(0);
-//    ui->progressBar_2->setValue(0);
+    //    ui->progressBar_1->setValue(0);
+    //    ui->progressBar_2->setValue(0);
     ui->label_statusPort_1->setText(" ");
     ui->label_statusPort_2->setText(" ");
     ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
