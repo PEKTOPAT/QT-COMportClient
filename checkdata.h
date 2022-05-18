@@ -47,6 +47,7 @@ private:
     double validity_2;
     int validityTrue_2;
     double validityAll_2;
+    bool pushRead;
 
 
 private slots:
@@ -65,6 +66,8 @@ private slots:
     void debugTextEdit(bool status, QString debMSG);
     void reset_Telementry();
     void clear_LogDialog();
+    void slot_StartRead();
+    void slot_StopRead();
 };
 
 #endif // CHECKDATA_H

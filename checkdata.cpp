@@ -37,6 +37,7 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     validityAll_1 = 0;
     validityTrue_2 = 0;
     validityAll_2 = 0;
+    pushRead = true;
 
     //    ui->progressBar_1->setValue(0);
     //    ui->progressBar_2->setValue(0);
@@ -63,6 +64,8 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     connect(ui->push_clear_FileLog, SIGNAL(clicked(bool)), this, SLOT(clearFileMSG()));
     connect(ui->push_connect,SIGNAL(clicked()),this, SLOT(alarmMSG()));
     connect(ui->push_clear_log, SIGNAL(clicked(bool)), this, SLOT(clear_LogDialog()));
+    connect(ui->push_start, SIGNAL(clicked(bool)),this,SLOT(slot_StartRead()));
+    connect(ui->push_stop, SIGNAL(clicked(bool)),this,SLOT(slot_StopRead()));
 }
 CheckData::~CheckData()
 {
@@ -119,6 +122,9 @@ void CheckData::openPort()
         ui->push_connect->setEnabled(false);
         ui->push_disconnect->setEnabled(true);
         ui->label_info->setText(ui->comboBox->currentText() +" @ "+ ui->comboBox_2->currentText());
+        ui->push_start->setEnabled(false);
+        ui->push_stop->setEnabled(true);
+        pushRead = true;
     }
     else debugTextEdit(false, "Port not open!");
 }
@@ -146,6 +152,9 @@ void CheckData::closePort()
         ui->label_nBit_CH2->setText(" ");
         ui->label_nBitERR_CH1->setText(" ");
         ui->label_nBitERR_CH2->setText(" ");
+        ui->push_start->setEnabled(false);
+        ui->push_stop->setEnabled(false);
+        pushRead = true;
         //        ui->progressBar_1->setValue(0);
         //        ui->progressBar_2->setValue(0);
         flagPackage = false;
@@ -178,6 +187,7 @@ void CheckData::closePort()
 QByteArray CheckData::readPort()
 {
     QByteArray data;
+    if(!pushRead) return data;
     QByteArray transit;
     port->portName();
     if (port->bytesAvailable() == 0) return data;
@@ -952,4 +962,18 @@ void CheckData::debugTextEdit(bool status, QString debMSG)
 void CheckData::clear_LogDialog()
 {
     ui->textEdit->clear();
+}
+//******************************************************************************
+void CheckData::slot_StartRead()
+{
+    pushRead = true;
+    ui->push_stop->setEnabled(true);
+    ui->push_start->setEnabled(false);
+}
+//******************************************************************************
+void CheckData::slot_StopRead()
+{
+    pushRead = false;
+    ui->push_stop->setEnabled(false);
+    ui->push_start->setEnabled(true);
 }
