@@ -5,6 +5,8 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QFile>
+#include <QTime>
+#include <QTimer>
 
 namespace Ui {
 class CheckData;
@@ -21,6 +23,8 @@ public:
 private:
     Ui::CheckData *ui;
     QSerialPort *port;
+    QTime *myTime_ch1;
+    QTime *myTime_ch2;
     QString command;
     bool flagPackage;
     bool flagChannel_1;
@@ -48,6 +52,7 @@ private:
     int validityTrue_2;
     double validityAll_2;
     bool pushRead;
+
 
 
 private slots:

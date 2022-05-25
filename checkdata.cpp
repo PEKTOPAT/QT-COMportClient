@@ -3,8 +3,10 @@
 
 #include <QFileDialog>
 #include <QDebug>
-#include <QTime>
 #include <QMessageBox>
+#include <QThread>
+
+#define longMsecPaint 20
 
 //******************************************************************************
 CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
@@ -47,6 +49,8 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     ui->label_info_sync2->setText("Sync Ch2");
     ui->label_info_sync2->setStyleSheet("QLabel {font-weight: bold; color : red; }");
 
+    myTime_ch1 = new QTime();
+    myTime_ch2 = new QTime();
     port = new QSerialPort(this);
     port->setDataBits(QSerialPort::Data8);
     port->setFlowControl(QSerialPort::NoFlowControl);
@@ -730,7 +734,6 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         int cnt = 0;
         QString byteControl = QString("%1").arg((quint8)msgControl.at(countValidity_Ch1), 8, 2, QChar('0'));
         QString byteRecieve = QString("%1").arg((quint8)byte_msg.at(0), 8, 2, QChar('0'));
-        //qDebug() << byteControl << byteRecieve;
         for(int i = 0; i < 8; i++)
         {
             validityAll_1++;
@@ -743,26 +746,29 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         if(validityAll_1 == validityTrue_1)
         {
             validity_1 = (validityAll_1 - validityTrue_1 + 1)/validityAll_1;
-            ui->label_nBit_CH1->setText(QString::number(validityAll_1));
-            ui->label_nBitERR_CH1->setText(QString::number((validityAll_1 - validityTrue_1)));
-            //ui->label_corr_1->setText(QString::number(validity_1));
-            ui->label_corr_1->setText(QString::number(validity_1,'e',4));
+            if((myTime_ch1->elapsed()) >= longMsecPaint)
+            {
+                ui->label_nBit_CH1->setText(QString::number(validityAll_1));
+                ui->label_nBitERR_CH1->setText(QString::number((validityAll_1 - validityTrue_1)));
+                ui->label_corr_1->setText(QString::number(validity_1,'e',4));
+                myTime_ch1->start();
+            }
         }
         else
         {
             validity_1 = (validityAll_1 - validityTrue_1)/validityAll_1;
-            ui->label_nBit_CH1->setText(QString::number(validityAll_1));
-            ui->label_nBitERR_CH1->setText(QString::number((validityAll_1 - validityTrue_1)));
-            //ui->label_corr_1->setText(QString::number(validity_1));
-            ui->label_corr_1->setText(QString::number(validity_1,'e',4));
+            if((myTime_ch1->elapsed()) >= longMsecPaint)
+            {
+                ui->label_nBit_CH1->setText(QString::number(validityAll_1));
+                ui->label_nBitERR_CH1->setText(QString::number((validityAll_1 - validityTrue_1)));
+                ui->label_corr_1->setText(QString::number(validity_1,'e',4));
+                myTime_ch1->start();
+            }
         }
         if(countValidity_Ch1 <  (msgControl.size() - 1)) countValidity_Ch1++;
         else
         {
             countValidity_Ch1 = 0;
-//            QByteArray enter;
-//            enter.append("\n");
-//            writeFileMSG(1, enter);
         }
     }
     else if(numChannel == 2)
@@ -782,18 +788,24 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         if(validityAll_2 == validityTrue_2)
         {
             validity_2 = (validityAll_2 - validityTrue_2 + 1)/validityAll_2;
-            ui->label_nBit_CH2->setText(QString::number(validityAll_2));
-            ui->label_nBitERR_CH2->setText(QString::number((validityAll_2 - validityTrue_2)));
-            //ui->label_corr_2->setText(QString::number(validity_2));
-            ui->label_corr_2->setText(QString::number(validity_2,'f',4));
+            if((myTime_ch2->elapsed()) >= longMsecPaint)
+            {
+                ui->label_nBit_CH2->setText(QString::number(validityAll_2));
+                ui->label_nBitERR_CH2->setText(QString::number((validityAll_2 - validityTrue_2)));
+                ui->label_corr_2->setText(QString::number(validity_2,'f',4));
+                myTime_ch2->start();
+            }
         }
         else
         {
             validity_2 = (validityAll_2 - validityTrue_2)/validityAll_2;
-            ui->label_nBit_CH2->setText(QString::number(validityAll_2));
-            ui->label_nBitERR_CH2->setText(QString::number((validityAll_2 - validityTrue_2)));
-            //ui->label_corr_2->setText(QString::number(validity_2));
-            ui->label_corr_2->setText(QString::number(validity_2,'f',4));
+            if((myTime_ch2->elapsed()) >= longMsecPaint)
+            {
+                ui->label_nBit_CH2->setText(QString::number(validityAll_2));
+                ui->label_nBitERR_CH2->setText(QString::number((validityAll_2 - validityTrue_2)));
+                ui->label_corr_2->setText(QString::number(validity_2,'f',4));
+                myTime_ch2->start();
+            }
         }
     }
     if(countValidity_Ch2 <  (msgControl.size() - 1)) countValidity_Ch2++;
@@ -802,9 +814,6 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
         countValidity_Ch2 = 0;
         flagSyncCh2 = false;
         Channel2.clear();
-//        QByteArray enter;
-//        enter.append("\n");
-//        writeFileMSG(2, enter);
     }
 }
 //******************************************************************************
@@ -926,8 +935,6 @@ void CheckData::reset_Telementry()
     countShift_ch1 = 0;
     countShift_ch2 = 0;
 
-    //    ui->progressBar_1->setValue(0);
-    //    ui->progressBar_2->setValue(0);
     ui->label_statusPort_1->setText(" ");
     ui->label_statusPort_2->setText(" ");
     ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
@@ -966,6 +973,8 @@ void CheckData::clear_LogDialog()
 //******************************************************************************
 void CheckData::slot_StartRead()
 {
+    myTime_ch1->start();
+    myTime_ch2->start();
     pushRead = true;
     ui->push_stop->setEnabled(true);
     ui->push_start->setEnabled(false);
