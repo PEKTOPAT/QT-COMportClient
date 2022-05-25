@@ -4,7 +4,6 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QMessageBox>
-#include <QThread>
 
 #define longMsecPaint 20
 
@@ -985,4 +984,27 @@ void CheckData::slot_StopRead()
     pushRead = false;
     ui->push_stop->setEnabled(false);
     ui->push_start->setEnabled(true);
+    reset_Arduino();
+    flagPackage = false;
+    flagNumPackage = false;
+    flagChannel_1 = false;
+    flagChannel_2 = false;
+    flagSyncCh1 = false;
+    flagSyncCh2 = false;
+    numPackage = 0;
+    numBit = 0;
+    countValidity_Ch1 = 2;
+    countValidity_Ch2 = 2;
+    validity_1 = 0;
+    validity_2 = 0;
+    validityTrue_1 = 0;
+    validityAll_1 = 0;
+    validityTrue_2 = 0;
+    validityAll_2 = 0;
+    Channel1.clear();
+    Channel2.clear();
+    byteRecieveSync_CH1 = 0;
+    byteRecieveSync_CH2 = 0;
+    countShift_ch1 = 0;
+    countShift_ch2 = 0;
 }
