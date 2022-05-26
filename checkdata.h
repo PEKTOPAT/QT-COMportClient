@@ -52,6 +52,7 @@ private:
     int validityTrue_2;
     double validityAll_2;
     bool pushRead;
+    QString save_strData;
 
 
 

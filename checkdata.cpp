@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QMessageBox>
 
-#define longMsecPaint 20
+#define longMsecPaint 5
 
 //******************************************************************************
 CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
@@ -38,6 +38,7 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     validityAll_1 = 0;
     validityTrue_2 = 0;
     validityAll_2 = 0;
+    save_strData = "";
     pushRead = true;
 
     //    ui->progressBar_1->setValue(0);
@@ -184,6 +185,7 @@ void CheckData::closePort()
         byteRecieveSync_CH2 = 0;
         countShift_ch1 = 0;
         countShift_ch2 = 0;
+        save_strData = "";
     }
     else return;
 }
@@ -211,16 +213,14 @@ void CheckData::parsingPackage(QByteArray data)
     const QString tab = " ";
     QString strData;
     //+++
-    QString HEX;
-    QString HEXmm = "0x";
+//    QString HEX;
+//    QString HEXmm = "0x";
     //_++
     int intData = static_cast<quint8>(data.at(0));
     for (int i = 0;i < data.size();i++)
     {
-        //+++
-        HEX = QString("%1").arg(intData,0,16) + tab;
-        HEX = HEXmm + HEX.toUpper();
-        //_++
+//        HEX = QString("%1").arg(intData,0,16) + tab;
+//        HEX = HEXmm + HEX.toUpper();
         strData = strData+QString("%1").arg(intData)+tab;
     }
     //+++
@@ -285,6 +285,13 @@ void CheckData::parsingPackage(QByteArray data)
     {
         if(strData == "161")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_2->setText(" ");
             ui->label_rate_2->setText(" ");
             ui->label_corr_2->setText(" ");
@@ -297,6 +304,13 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "162")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_2->setText(" ");
             ui->label_rate_2->setText(" ");
             ui->label_corr_2->setText(" ");
@@ -309,6 +323,13 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "163")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_2->setText(" ");
             ui->label_rate_2->setText(" ");
             ui->label_corr_2->setText(" ");
@@ -322,6 +343,13 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "196")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText(" ");
             ui->label_rate_1->setText(" ");
             ui->label_corr_1->setText(" ");
@@ -334,6 +362,13 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "200")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText(" ");
             ui->label_rate_1->setText(" ");
             ui->label_corr_1->setText(" ");
@@ -346,6 +381,13 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "204")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText(" ");
             ui->label_rate_1->setText(" ");
             ui->label_corr_1->setText(" ");
@@ -358,6 +400,14 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "229")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
@@ -371,6 +421,14 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "230")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
@@ -384,6 +442,14 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "231")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
@@ -397,6 +463,14 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "233")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
@@ -410,6 +484,14 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "234")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
@@ -423,6 +505,14 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "235")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
@@ -436,6 +526,14 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "237")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
@@ -449,6 +547,14 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "238")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
@@ -462,6 +568,14 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "239")
         {
+            if(save_strData == strData)
+            {
+                flagChannel_1 = true;
+                flagChannel_2 = true;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText("Up");
             ui->label_statusPort_2->setText("Up");
             ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
@@ -475,6 +589,14 @@ void CheckData::parsingPackage(QByteArray data)
         }
         else if (strData == "128")
         {
+            if(save_strData == strData)
+            {
+                flagPackage = false;
+                flagNumPackage = false;
+                numBit = 3;
+                return;
+            }
+            save_strData = strData;
             ui->label_statusPort_1->setText(" ");
             ui->label_statusPort_2->setText(" ");
             ui->label_corr_1->setText(" ");
@@ -857,11 +979,11 @@ void CheckData::writePort(QByteArray data)
 void CheckData::writeFileMSG(int numChannel, QByteArray msg)
 {
     QString nameFile = QString("file_%1.txt").arg(QString::number(numChannel));
-    QFile file_ch1(nameFile);
-    if (file_ch1.open(QIODevice::WriteOnly | QIODevice::Append))
+    QFile file_ch(nameFile);
+    if (file_ch.open(QIODevice::WriteOnly | QIODevice::Append))
     {
-        file_ch1.write(msg);
-        file_ch1.close();
+        file_ch.write(msg);
+        file_ch.close();
     }else
     {
         debugTextEdit(false, "File write error");
@@ -934,6 +1056,7 @@ void CheckData::reset_Telementry()
     byteRecieveSync_CH2 = 0;
     countShift_ch1 = 0;
     countShift_ch2 = 0;
+    save_strData = "";
 
     ui->label_statusPort_1->setText(" ");
     ui->label_statusPort_2->setText(" ");
