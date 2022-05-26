@@ -128,6 +128,8 @@ void CheckData::openPort()
         ui->push_start->setEnabled(false);
         ui->push_stop->setEnabled(true);
         pushRead = true;
+        myTime_ch1->start();
+        myTime_ch2->start();
     }
     else debugTextEdit(false, "Port not open!");
 }
@@ -182,7 +184,6 @@ void CheckData::closePort()
         byteRecieveSync_CH2 = 0;
         countShift_ch1 = 0;
         countShift_ch2 = 0;
-
     }
     else return;
 }

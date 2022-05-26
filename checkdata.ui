@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>532</width>
-    <height>406</height>
+    <height>410</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -319,7 +319,7 @@
             <widget class="QGroupBox" name="groupBox_3">
              <property name="maximumSize">
               <size>
-               <width>145</width>
+               <width>170</width>
                <height>16777215</height>
               </size>
              </property>
@@ -430,6 +430,18 @@
                 </item>
                 <item>
                  <widget class="QLabel" name="label_nBit_CH1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>65</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -457,6 +469,18 @@
                 </item>
                 <item>
                  <widget class="QLabel" name="label_nBitERR_CH1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>42</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -490,6 +514,18 @@
                 </item>
                 <item>
                  <widget class="QLabel" name="label_corr_1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -519,7 +555,7 @@
              </property>
              <property name="maximumSize">
               <size>
-               <width>160</width>
+               <width>170</width>
                <height>16777215</height>
               </size>
              </property>
@@ -624,6 +660,18 @@
                 </item>
                 <item>
                  <widget class="QLabel" name="label_nBit_CH2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>65</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -651,6 +699,18 @@
                 </item>
                 <item>
                  <widget class="QLabel" name="label_nBitERR_CH2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>42</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -684,6 +744,18 @@
                 </item>
                 <item>
                  <widget class="QLabel" name="label_corr_2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
