@@ -870,7 +870,7 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             validity_1 = (validityAll_1 - validityTrue_1 + 1)/validityAll_1;
             if((myTime_ch1->elapsed()) >= longMsecPaint)
             {
-                ui->label_nBit_CH1->setText(QString::number(validityAll_1));
+                ui->label_nBit_CH1->setText(QString::number(validityAll_1,'g', 8));
                 ui->label_nBitERR_CH1->setText(QString::number((validityAll_1 - validityTrue_1)));
                 ui->label_corr_1->setText(QString::number(validity_1,'e',4));
                 myTime_ch1->start();
