@@ -18,3 +18,6 @@ SOURCES += main.cpp\
 HEADERS  += checkdata.h
 
 FORMS    += checkdata.ui
+
+RESOURCES +=
+RC_FILE = client.rc

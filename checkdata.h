@@ -53,6 +53,8 @@ private:
     double validityAll_2;
     bool pushRead;
     QString save_strData;
+    QFile file_ch_1;
+    QFile file_ch_2;
 
 
 

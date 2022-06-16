@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QMessageBox>
 
-#define longMsecPaint 5
+#define longMsecPaint 42
 
 //******************************************************************************
 CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
@@ -18,6 +18,8 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     {
         ui->comboBox->addItem(QSerialPortInfo::availablePorts().at(i).portName());
     }
+    file_ch_1.setFileName("file_1.txt");
+    file_ch_2.setFileName("file_2.txt");
     flagPackage = false;
     flagNumPackage = false;
     flagChannel_1 = false;
@@ -213,14 +215,14 @@ void CheckData::parsingPackage(QByteArray data)
     const QString tab = " ";
     QString strData;
     //+++
-//    QString HEX;
-//    QString HEXmm = "0x";
+    //    QString HEX;
+    //    QString HEXmm = "0x";
     //_++
     int intData = static_cast<quint8>(data.at(0));
     for (int i = 0;i < data.size();i++)
     {
-//        HEX = QString("%1").arg(intData,0,16) + tab;
-//        HEX = HEXmm + HEX.toUpper();
+        //        HEX = QString("%1").arg(intData,0,16) + tab;
+        //        HEX = HEXmm + HEX.toUpper();
         strData = strData+QString("%1").arg(intData)+tab;
     }
     //+++
@@ -843,8 +845,6 @@ void CheckData::parsingPackage(QByteArray data)
         }
     }
     else return;
-
-
 }
 //******************************************************************************
 void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
@@ -881,7 +881,7 @@ void CheckData::validitySignal(int numChannel, QByteArray byte_msg)
             validity_1 = (validityAll_1 - validityTrue_1)/validityAll_1;
             if((myTime_ch1->elapsed()) >= longMsecPaint)
             {
-                ui->label_nBit_CH1->setText(QString::number(validityAll_1));
+                ui->label_nBit_CH1->setText(QString::number(validityAll_1, 'g', 8));
                 ui->label_nBitERR_CH1->setText(QString::number((validityAll_1 - validityTrue_1)));
                 ui->label_corr_1->setText(QString::number(validity_1,'e',4));
                 myTime_ch1->start();
@@ -978,36 +978,87 @@ void CheckData::writePort(QByteArray data)
 //******************************************************************************
 void CheckData::writeFileMSG(int numChannel, QByteArray msg)
 {
-    QString nameFile = QString("file_%1.txt").arg(QString::number(numChannel));
-    QFile file_ch(nameFile);
-    if (file_ch.open(QIODevice::WriteOnly | QIODevice::Append))
+    if(ui->checkBox_Log_file->isChecked())
     {
-        file_ch.write(msg);
-        file_ch.close();
-    }else
-    {
-        debugTextEdit(false, "File write error");
-        return;
+        if(numChannel == 1)
+        {
+            if(file_ch_1.exists())
+            {
+                qDebug() << "Файл существует";
+                if(file_ch_1.isOpen())
+                {
+                    qDebug() << "Файл открыт";
+                    file_ch_1.write(msg);
+                }else
+                {qDebug() << "Файл закрыт";
+                    if (file_ch_1.open(QIODevice::WriteOnly | QIODevice::Append))
+                    {
+                        file_ch_1.write(msg);
+                    }else
+                    {
+                        debugTextEdit(false, "File write error");
+                        return;
+                    }
+                }
+            }else
+            {
+                qDebug() << "Файла не существует";
+                if (file_ch_1.open(QIODevice::WriteOnly | QIODevice::Append))
+                {
+                    file_ch_1.write(msg);
+                }else
+                {
+                    debugTextEdit(false, "File write error");
+                    return;
+                }
+            }
+        }else
+        {
+            if(file_ch_2.exists())
+            {
+                qDebug() << "Файл существует";
+                if(file_ch_2.isOpen())
+                {
+                    qDebug() << "Файл открыт";
+                    file_ch_2.write(msg);
+                }else
+                {qDebug() << "Файл закрыт";
+                    if (file_ch_2.open(QIODevice::WriteOnly | QIODevice::Append))
+                    {
+                        file_ch_2.write(msg);
+                    }else
+                    {
+                        debugTextEdit(false, "File write error");
+                        return;
+                    }
+                }
+            }else
+            {
+                qDebug() << "Файла не существует";
+                if (file_ch_2.open(QIODevice::WriteOnly | QIODevice::Append))
+                {
+                    file_ch_2.write(msg);
+                }else
+                {
+                    debugTextEdit(false, "File write error");
+                    return;
+                }
+            }
+        }
     }
 }
 //******************************************************************************
 void CheckData::clearFileMSG()
 {
-    QString nameFile;
-    nameFile.append("file_1.txt");
-    QFile file_ch1(nameFile);
-    if (file_ch1.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    if (file_ch_1.open(QIODevice::WriteOnly | QIODevice::Truncate))
     {
-        file_ch1.close();
+        file_ch_1.close();
         debugTextEdit(true, "Log file 1 cleared");
     }
     else debugTextEdit(false, "File_1 write error");
-    nameFile.clear();
-    nameFile.append("file_2.txt");
-    QFile file_ch2(nameFile);
-    if (file_ch2.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    if (file_ch_2.open(QIODevice::WriteOnly | QIODevice::Truncate))
     {
-        file_ch2.close();
+        file_ch_2.close();
         debugTextEdit(true, "Log file 2 cleared");
     }
     else debugTextEdit(false, "File_2 write error");
@@ -1131,4 +1182,6 @@ void CheckData::slot_StopRead()
     byteRecieveSync_CH2 = 0;
     countShift_ch1 = 0;
     countShift_ch2 = 0;
+    file_ch_1.close();
+    file_ch_2.close();
 }
