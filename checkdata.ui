@@ -6,14 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
+<<<<<<< HEAD
     <width>532</width>
     <height>410</height>
+=======
+    <width>438</width>
+    <height>274</height>
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
    </rect>
   </property>
   <property name="windowTitle">
    <string>CheckData</string>
   </property>
   <widget class="QWidget" name="centralWidget">
+<<<<<<< HEAD
    <layout class="QGridLayout" name="gridLayout_10">
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -37,6 +43,38 @@
             </property>
             <property name="title">
              <string>DOWNLOAD FILE</string>
+=======
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>211</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>PORT SETTINGS</string>
+    </property>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>191</width>
+       <height>56</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Port: </string>
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="1" column="2">
@@ -126,6 +164,7 @@
             <zorder>checkBox_Log_file</zorder>
            </widget>
           </item>
+<<<<<<< HEAD
           <item row="0" column="1">
            <widget class="QGroupBox" name="groupBox_6">
             <property name="maximumSize">
@@ -136,6 +175,27 @@
             </property>
             <property name="title">
              <string>PORT SETTINGS</string>
+=======
+          <item>
+           <widget class="QComboBox" name="comboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::DefaultContextMenu</enum>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
             </property>
             <layout class="QGridLayout" name="gridLayout">
              <item row="0" column="0">
@@ -237,6 +297,7 @@
          </layout>
         </item>
         <item>
+<<<<<<< HEAD
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="0">
            <widget class="QGroupBox" name="groupBox_2">
@@ -880,10 +941,18 @@
            <widget class="QLabel" name="label_8">
             <property name="text">
              <string>Current status:</string>
+=======
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Rate:</string>
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
             </property>
            </widget>
           </item>
           <item>
+<<<<<<< HEAD
            <widget class="QLabel" name="label_status">
             <property name="enabled">
              <bool>true</bool>
@@ -923,11 +992,15 @@
              <string/>
             </property>
            </widget>
+=======
+           <widget class="QComboBox" name="comboBox_2"/>
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
           </item>
          </layout>
         </item>
        </layout>
       </item>
+<<<<<<< HEAD
       <item>
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
@@ -981,22 +1054,254 @@
         <property name="contextMenuPolicy">
          <enum>Qt::DefaultContextMenu</enum>
         </property>
+=======
+      <item row="0" column="1">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QPushButton" name="push_connect">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Connect</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="push_disconnect">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Disconnect</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_5">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>10</y>
+      <width>201</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>GroupBox</string>
+    </property>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>181</width>
+       <height>141</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Send File</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="push_download">
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
         <property name="text">
          <string>Stop</string>
         </property>
        </widget>
       </item>
      </layout>
+<<<<<<< HEAD
     </item>
    </layout>
+=======
+    </widget>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>200</y>
+      <width>291</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Current status:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_status">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Disconnected</string>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+         <property name="wordWrap">
+          <bool>false</bool>
+         </property>
+         <property name="openExternalLinks">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_info">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_6">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>120</y>
+      <width>201</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>202</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Period:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit">
+            <property name="text">
+             <string>50</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Massiv</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="push_generate">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Generate</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="1">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QPushButton" name="push_send">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>SEND</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="push_stop">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>STOP</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
+<<<<<<< HEAD
      <width>532</width>
      <height>20</height>
+=======
+     <width>438</width>
+     <height>21</height>
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
     </rect>
    </property>
   </widget>

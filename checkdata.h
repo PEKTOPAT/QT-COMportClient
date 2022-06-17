@@ -7,6 +7,10 @@
 #include <QFile>
 #include <QTime>
 #include <QTimer>
+<<<<<<< HEAD
+=======
+
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
 
 namespace Ui {
 class CheckData;
@@ -23,6 +27,7 @@ public:
 private:
     Ui::CheckData *ui;
     QSerialPort *port;
+<<<<<<< HEAD
     QTime *myTime_ch1;
     QTime *myTime_ch2;
     QString command;
@@ -57,6 +62,14 @@ private:
     QFile file_ch_2;
     QTimer *timer_RefrashPort;
     int num_port;
+=======
+    QString Pattern;
+    QByteArray dataforSend;
+    int count;
+    QTimer *timer;
+    QByteArray send;
+    int TimeSend;
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
 
 
 
@@ -64,6 +77,7 @@ private slots:
     void openPort();
     void closePort();
     void setRate_slot(int rate);
+<<<<<<< HEAD
     void reset_Arduino();
     void parsingPackage(QByteArray data);
     void writePort(QByteArray data);
@@ -79,6 +93,16 @@ private slots:
     void slot_StartRead();
     void slot_StopRead();
     void refrashPort();
+=======
+    void writePort();
+    void openPatternFile();
+    void debugTextEdit(bool status, QString debMSG);
+    void createPackage();
+    void sendClick();
+    void stopSendClick();
+
+    void on_lineEdit_editingFinished();
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
 };
 
 #endif // CHECKDATA_H

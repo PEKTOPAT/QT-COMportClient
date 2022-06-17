@@ -3,14 +3,24 @@
 
 #include <QFileDialog>
 #include <QDebug>
+<<<<<<< HEAD
 #include <QMessageBox>
 
 #define longMsecPaint 42
 
 //******************************************************************************
 CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
+=======
+
+CheckData::CheckData(QWidget *parent) :
+    QMainWindow(parent),
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
     ui(new Ui::CheckData)
 {
+    timer = NULL;
+    timer = new QTimer();
+    count = 0;
+    TimeSend = 50;
     ui->setupUi(this);
     setGeometry(300, 300, 480, 350);
     num_port = QSerialPortInfo::availablePorts().length();
@@ -65,6 +75,7 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     connect(ui->push_connect,SIGNAL(clicked()),this, SLOT(openPort()));
     connect(ui->push_disconnect,SIGNAL(clicked()),this, SLOT(closePort()));
     connect(ui->comboBox_2, SIGNAL(currentIndexChanged(int)), this, SLOT(setRate_slot(int)));
+<<<<<<< HEAD
     connect(port, SIGNAL(readyRead()), this, SLOT(readPort()));
     //connect(ui->push_reset_arduin, SIGNAL(clicked(bool)), this, SLOT(reset_Arduino()));
     connect(ui->push_reset_tlm, SIGNAL(clicked(bool)), this, SLOT(reset_Telementry()));
@@ -75,12 +86,24 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     connect(ui->push_start, SIGNAL(clicked(bool)),this,SLOT(slot_StartRead()));
     connect(ui->push_stop, SIGNAL(clicked(bool)),this,SLOT(slot_StopRead()));
     connect(timer_RefrashPort, SIGNAL(timeout()), this, SLOT(refrashPort()));
+=======
+    connect(ui->push_download, SIGNAL(clicked(bool)), this, SLOT(openPatternFile()));
+    connect(ui->push_send, SIGNAL(clicked(bool)), this, SLOT(sendClick()));
+    connect(ui->push_stop, SIGNAL(clicked(bool)), this, SLOT(stopSendClick()));
+    connect(ui->push_generate, SIGNAL(clicked(bool)), this, SLOT(createPackage()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(writePort()));
+
+
+
+}
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
 
 }
 CheckData::~CheckData()
 {
     delete ui;
     delete port;
+    delete timer;
 }
 //******************************************************************************
 //******************************************************************************
@@ -152,6 +175,7 @@ void CheckData::closePort()
         ui->label_status->setStyleSheet("QLabel {font-weight: bold; color : red; }");
         ui->push_connect->setEnabled(true);
         ui->push_disconnect->setEnabled(false);
+<<<<<<< HEAD
         ui->label_statusPort_1->setText(" ");
         ui->label_statusPort_2->setText(" ");
         ui->label_statusPort_1->setStyleSheet("QLabel {font-weight: bold; color : black; }");
@@ -192,6 +216,9 @@ void CheckData::closePort()
         countShift_ch1 = 0;
         countShift_ch2 = 0;
         save_strData = "";
+=======
+        //count = 0;
+>>>>>>> c4fba60aa7040311141fb8c0d4288350e0778c86
     }
     else return;
 }
@@ -1201,4 +1228,94 @@ void CheckData::refrashPort()
             ui->comboBox->addItem(QSerialPortInfo::availablePorts().at(i).portName());
         }
     }
+}
+//******************************************************************************
+void CheckData::writePort()
+{
+    if(dataforSend.size() < 1)
+    {
+        debugTextEdit(false, "File not load");
+        return;
+    }
+    else
+    {
+        send.append(dataforSend.at(count));
+        qDebug() << "__" << send;
+        port->write(send);
+        send.clear();
+    }
+    if(count < (dataforSend.size() - 1))
+    {
+        count++;
+    }else count = 0;
+
+}
+//******************************************************************************
+void CheckData::createPackage()
+{
+    dataforSend.clear();
+    for(int i = 1; i <= Pattern.size(); i++)
+    {
+        dataforSend.append(171);
+        dataforSend.append(i - 1);
+        dataforSend.append(230);
+        QString info1 = Pattern.at(i - 1);
+        dataforSend.append(info1);
+        QString info2 = Pattern.at(i - 1);
+        dataforSend.append(info2);
+    }
+    debugTextEdit(true, "Create Package");
+
+}
+//******************************************************************************
+void CheckData::openPatternFile()
+{
+    count = 0;
+    dataforSend.clear();
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if(fileName.isEmpty())
+    {
+        debugTextEdit(false, "File isEmpty");
+        return;
+    }
+    QFile file(fileName);
+
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        debugTextEdit(false, "File not open");
+        return;
+    }else debugTextEdit(true, "Control file load");
+    QTextStream in(&file);
+
+    while(!in.atEnd())
+    {
+        QString line = in.readLine();
+        Pattern.append(line);
+    }
+    qDebug() << dataforSend;
+    file.close();
+}
+//******************************************************************************
+void CheckData::debugTextEdit(bool status, QString debMSG)
+{
+    if(status) ui->textEdit->append(QTime::currentTime().toString("HH:mm:ss") + " -> " + debMSG);
+    else ui->textEdit->append("<font color = red><\\font>" + QTime::currentTime().toString("HH:mm:ss") + " -> " + debMSG);
+}
+//******************************************************************************
+void CheckData::sendClick()
+{
+    debugTextEdit(true, "Start send");
+    timer->start(TimeSend);
+}
+void CheckData::stopSendClick()
+{
+    debugTextEdit(true, "Stop send");
+    timer->stop();
+}
+
+
+void CheckData::on_lineEdit_editingFinished()
+{
+    QString a = ui->lineEdit->text();
+    TimeSend = a.toInt();
 }
