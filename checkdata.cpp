@@ -13,7 +13,7 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
 {
     ui->setupUi(this);
     setGeometry(300, 300, 480, 350);
-    int num_port = QSerialPortInfo::availablePorts().length();
+    num_port = QSerialPortInfo::availablePorts().length();
     for(int i = 0; i < num_port; i++)
     {
         ui->comboBox->addItem(QSerialPortInfo::availablePorts().at(i).portName());
@@ -42,6 +42,8 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     validityAll_2 = 0;
     save_strData = "";
     pushRead = true;
+    timer_RefrashPort = new QTimer();
+    timer_RefrashPort->start(3000);
 
     //    ui->progressBar_1->setValue(0);
     //    ui->progressBar_2->setValue(0);
@@ -72,6 +74,8 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     connect(ui->push_clear_log, SIGNAL(clicked(bool)), this, SLOT(clear_LogDialog()));
     connect(ui->push_start, SIGNAL(clicked(bool)),this,SLOT(slot_StartRead()));
     connect(ui->push_stop, SIGNAL(clicked(bool)),this,SLOT(slot_StopRead()));
+    connect(timer_RefrashPort, SIGNAL(timeout()), this, SLOT(refrashPort()));
+
 }
 CheckData::~CheckData()
 {
@@ -1184,4 +1188,17 @@ void CheckData::slot_StopRead()
     countShift_ch2 = 0;
     file_ch_1.close();
     file_ch_2.close();
+}
+//******************************************************************************
+void CheckData::refrashPort()
+{
+    if(num_port != (QSerialPortInfo::availablePorts().length()))
+    {
+        num_port = QSerialPortInfo::availablePorts().length();
+        ui->comboBox->clear();
+        for(int i = 0; i < num_port; i++)
+        {
+            ui->comboBox->addItem(QSerialPortInfo::availablePorts().at(i).portName());
+        }
+    }
 }
