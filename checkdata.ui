@@ -789,7 +789,7 @@
         <item>
          <widget class="QGroupBox" name="groupBox_5">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="minimumSize">
            <size>
@@ -834,6 +834,9 @@
              </item>
              <item>
               <widget class="QPushButton" name="push_clear_log">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
                <property name="maximumSize">
                 <size>
                  <width>45</width>
@@ -852,6 +855,9 @@
            </item>
            <item row="1" column="0">
             <widget class="QTextEdit" name="textEdit">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>

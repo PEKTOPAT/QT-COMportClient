@@ -55,6 +55,8 @@ private:
     QString save_strData;
     QFile file_ch_1;
     QFile file_ch_2;
+    QTimer *timer_RefrashPort;
+    int num_port;
 
 
 
@@ -76,6 +78,7 @@ private slots:
     void clear_LogDialog();
     void slot_StartRead();
     void slot_StopRead();
+    void refrashPort();
 };
 
 #endif // CHECKDATA_H
