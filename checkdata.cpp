@@ -75,8 +75,8 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     connect(ui->push_start, SIGNAL(clicked(bool)),this,SLOT(slot_StartRead()));
     connect(ui->push_stop, SIGNAL(clicked(bool)),this,SLOT(slot_StopRead()));
     connect(timer_RefrashPort, SIGNAL(timeout()), this, SLOT(refrashPort()));
-
 }
+
 CheckData::~CheckData()
 {
     delete ui;
@@ -988,13 +988,11 @@ void CheckData::writeFileMSG(int numChannel, QByteArray msg)
         {
             if(file_ch_1.exists())
             {
-                qDebug() << "Файл существует";
                 if(file_ch_1.isOpen())
                 {
-                    qDebug() << "Файл открыт";
                     file_ch_1.write(msg);
                 }else
-                {qDebug() << "Файл закрыт";
+                {
                     if (file_ch_1.open(QIODevice::WriteOnly | QIODevice::Append))
                     {
                         file_ch_1.write(msg);
@@ -1006,8 +1004,7 @@ void CheckData::writeFileMSG(int numChannel, QByteArray msg)
                 }
             }else
             {
-                qDebug() << "Файла не существует";
-                if (file_ch_1.open(QIODevice::WriteOnly | QIODevice::Append))
+                if (file_ch_1.open(QIODevice::WriteOnly))
                 {
                     file_ch_1.write(msg);
                 }else
@@ -1020,13 +1017,11 @@ void CheckData::writeFileMSG(int numChannel, QByteArray msg)
         {
             if(file_ch_2.exists())
             {
-                qDebug() << "Файл существует";
                 if(file_ch_2.isOpen())
                 {
-                    qDebug() << "Файл открыт";
                     file_ch_2.write(msg);
                 }else
-                {qDebug() << "Файл закрыт";
+                {
                     if (file_ch_2.open(QIODevice::WriteOnly | QIODevice::Append))
                     {
                         file_ch_2.write(msg);
@@ -1038,7 +1033,6 @@ void CheckData::writeFileMSG(int numChannel, QByteArray msg)
                 }
             }else
             {
-                qDebug() << "Файла не существует";
                 if (file_ch_2.open(QIODevice::WriteOnly | QIODevice::Append))
                 {
                     file_ch_2.write(msg);
@@ -1160,6 +1154,8 @@ void CheckData::slot_StartRead()
 //******************************************************************************
 void CheckData::slot_StopRead()
 {
+    if(file_ch_1.isOpen()) file_ch_1.close();
+    if(file_ch_2.isOpen()) file_ch_2.close();
     pushRead = false;
     ui->push_stop->setEnabled(false);
     ui->push_start->setEnabled(true);
