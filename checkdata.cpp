@@ -636,14 +636,13 @@ void CheckData::parsingPackage(QByteArray data)
     //Если получен 3 байт и поднят флаг информации 0-го, то происходит запись инф
     else if (flagChannel_1 && numBit == 3)
     {
-        //        if(ui->progressBar_1->value() >= ui->progressBar_1->maximum()) ui->progressBar_1->reset();
-        //        ui->progressBar_1->setValue(ui->progressBar_1->value() + 1);
+        if(ui->checkBox_Log_full->isChecked()) writeFileMSG(1, data);
         Channel1.append(data);
         if(flagSyncCh1)
         {
             if(countShift_ch1 == 0)
             {
-                writeFileMSG(1, data);
+                if(!ui->checkBox_Log_full->isChecked()) writeFileMSG(1, data);
                 validitySignal(1, data);
             }
             else
@@ -661,7 +660,7 @@ void CheckData::parsingPackage(QByteArray data)
                 }
                 QByteArray send;
                 send.append(Channel1[0]);
-                writeFileMSG(1, send);
+                if(!ui->checkBox_Log_full->isChecked()) writeFileMSG(1, send);
                 validitySignal(1, send);
                 Channel1.remove(2,1);
             }
@@ -682,14 +681,13 @@ void CheckData::parsingPackage(QByteArray data)
     {
         if(flagChannel_2)
         {
-            //            if(ui->progressBar_2->value() >= ui->progressBar_2->maximum()) ui->progressBar_2->reset();
-            //            ui->progressBar_2->setValue(ui->progressBar_2->value() + 1);
+            if(ui->checkBox_Log_full->isChecked()) writeFileMSG(2, data);
             Channel2.append(data);
             if(flagSyncCh2)
             {
                 if(countShift_ch2 == 0)
                 {
-                    writeFileMSG(2, data);
+                    if(!ui->checkBox_Log_full->isChecked()) writeFileMSG(2, data);
                     validitySignal(2, data);
                 }
                 else
@@ -707,8 +705,8 @@ void CheckData::parsingPackage(QByteArray data)
                     }
                     QByteArray send2;
                     send2.append(Channel2[0]);
-                    writeFileMSG(1, send2);
-                    validitySignal(1, send2);
+                    if(!ui->checkBox_Log_full->isChecked()) writeFileMSG(2, send2);
+                    validitySignal(2, send2);
                     Channel2.remove(2,1);
                 }
             }
@@ -753,7 +751,6 @@ void CheckData::parsingPackage(QByteArray data)
         if(byteRecieveSync_CH1 == byteMarkerSync_CH1)
         {
             flagSyncCh1 = true;
-            //ui->progressBar_1->setValue(0);
         }
         else
         {
@@ -768,7 +765,6 @@ void CheckData::parsingPackage(QByteArray data)
                     ui->label_info_sync1->setStyleSheet("QLabel {font-weight: bold; color : green; }");
                     debugTextEdit(true, "Synchronised Ch1");
                     countShift_ch1 = i;
-                    //ui->progressBar_1->setValue(0);
                     for(int i = 1; i <= (8 - countShift_ch1); i++)
                     {
                         Channel1[0] = Channel1[0] << 1 | (Channel1[2] & 0x80) >> 7;
@@ -783,7 +779,7 @@ void CheckData::parsingPackage(QByteArray data)
                     Channel1.remove(2, 2);
                     QByteArray send1;
                     send1.append(Channel1[0]);
-                    writeFileMSG(1, send1);
+                    if(!ui->checkBox_Log_full->isChecked()) writeFileMSG(1, send1);
                     validitySignal(1, send1);
                 }
             }
@@ -807,7 +803,6 @@ void CheckData::parsingPackage(QByteArray data)
         if(byteRecieveSync_CH2 == byteMarkerSync_CH2)
         {
             flagSyncCh2 = true;
-            //ui->progressBar_2->setValue(0);
         }
         else
         {
@@ -822,7 +817,6 @@ void CheckData::parsingPackage(QByteArray data)
                     ui->label_info_sync2->setStyleSheet("QLabel {font-weight: bold; color : green; }");
                     debugTextEdit(true, "Synchronised Ch2");
                     countShift_ch2 = i;
-                    //ui->progressBar_2->setValue(0);
                     for(int i = 1; i <= (8 - countShift_ch2); i++)
                     {
                         Channel2[0] = Channel2[0] << 1 | (Channel2[2] & 0x80) >> 7;
@@ -837,8 +831,8 @@ void CheckData::parsingPackage(QByteArray data)
                     Channel2.remove(2, 2);
                     QByteArray send2;
                     send2.append(Channel2[0]);
-                    writeFileMSG(1, send2);
-                    validitySignal(1, send2);
+                    if(!ui->checkBox_Log_full->isChecked()) writeFileMSG(2, send2);
+                    validitySignal(2, send2);
                 }
             }
             if(!flagSyncCh2)
