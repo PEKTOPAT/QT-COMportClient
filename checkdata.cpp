@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QMessageBox>
 
-#define longMsecPaint 42
+#define longMsecPaint 15
 
 //******************************************************************************
 CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
@@ -134,6 +134,8 @@ void CheckData::openPort()
         ui->label_info->setText(ui->comboBox->currentText() +" @ "+ ui->comboBox_2->currentText());
         ui->push_start->setEnabled(false);
         ui->push_stop->setEnabled(true);
+        ui->comboBox->setEnabled(false);
+        ui->comboBox_2->setEnabled(false);
         pushRead = true;
         myTime_ch1->start();
         myTime_ch2->start();
