@@ -150,19 +150,71 @@
              </size>
             </property>
             <property name="title">
-             <string>DOWNLOAD FILE</string>
+             <string>WORKING WITH FILES</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="2" column="0">
               <widget class="QLabel" name="label_2">
                <property name="maximumSize">
                 <size>
-                 <width>60</width>
+                 <width>70</width>
                  <height>16777215</height>
                 </size>
                </property>
                <property name="text">
-                <string>Mode full:</string>
+                <string>Full (no sync):</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QPushButton" name="push_download">
+               <property name="maximumSize">
+                <size>
+                 <width>34</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Load</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label">
+               <property name="maximumSize">
+                <size>
+                 <width>90</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Save logs:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QPushButton" name="push_clear_FileLog">
+               <property name="maximumSize">
+                <size>
+                 <width>45</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Clear</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLabel" name="label_6">
+               <property name="maximumSize">
+                <size>
+                 <width>90</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Etalon:</string>
                </property>
               </widget>
              </item>
@@ -186,7 +238,7 @@
               <widget class="QCheckBox" name="checkBox_Log_file">
                <property name="minimumSize">
                 <size>
-                 <width>19</width>
+                 <width>15</width>
                  <height>0</height>
                 </size>
                </property>
@@ -195,45 +247,6 @@
                </property>
                <property name="checked">
                 <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QPushButton" name="push_download">
-               <property name="maximumSize">
-                <size>
-                 <width>45</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Load</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label">
-               <property name="maximumSize">
-                <size>
-                 <width>60</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Control file:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QPushButton" name="push_clear_FileLog">
-               <property name="maximumSize">
-                <size>
-                 <width>45</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Clear</string>
                </property>
               </widget>
              </item>

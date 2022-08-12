@@ -41,7 +41,7 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     validityTrue_2 = 0;
     validityAll_2 = 0;
     save_strData = "";
-    pushRead = true;
+    pushRead = false;
     timer_RefrashPort = new QTimer();
     timer_RefrashPort->start(3000);
 
@@ -70,7 +70,6 @@ CheckData::CheckData(QWidget *parent) : QMainWindow(parent),
     connect(ui->push_reset_tlm, SIGNAL(clicked(bool)), this, SLOT(reset_Telementry()));
     connect(ui->push_download, SIGNAL(clicked(bool)), this, SLOT(openPatternFile()));
     connect(ui->push_clear_FileLog, SIGNAL(clicked(bool)), this, SLOT(clearFileMSG()));
-    connect(ui->push_connect,SIGNAL(clicked()),this, SLOT(alarmMSG()));
     connect(ui->push_clear_log, SIGNAL(clicked(bool)), this, SLOT(clear_LogDialog()));
     connect(ui->push_start, SIGNAL(clicked(bool)),this,SLOT(slot_StartRead()));
     connect(ui->push_stop, SIGNAL(clicked(bool)),this,SLOT(slot_StopRead()));
@@ -132,13 +131,9 @@ void CheckData::openPort()
         ui->push_connect->setEnabled(false);
         ui->push_disconnect->setEnabled(true);
         ui->label_info->setText(ui->comboBox->currentText() +" @ "+ ui->comboBox_2->currentText());
-        ui->push_start->setEnabled(false);
-        ui->push_stop->setEnabled(true);
         ui->comboBox->setEnabled(false);
         ui->comboBox_2->setEnabled(false);
-        pushRead = true;
-        myTime_ch1->start();
-        myTime_ch2->start();
+        ui->push_start->setEnabled(true);
     }
     else debugTextEdit(false, "Port not open!");
 }
@@ -168,7 +163,9 @@ void CheckData::closePort()
         ui->label_nBitERR_CH2->setText(" ");
         ui->push_start->setEnabled(false);
         ui->push_stop->setEnabled(false);
-        pushRead = true;
+        ui->comboBox->setEnabled(true);
+        ui->comboBox_2->setEnabled(true);
+        pushRead = false;
         //        ui->progressBar_1->setValue(0);
         //        ui->progressBar_2->setValue(0);
         flagPackage = false;
@@ -1141,11 +1138,23 @@ void CheckData::clear_LogDialog()
 //******************************************************************************
 void CheckData::slot_StartRead()
 {
-    myTime_ch1->start();
-    myTime_ch2->start();
-    pushRead = true;
-    ui->push_stop->setEnabled(true);
-    ui->push_start->setEnabled(false);
+    if(byteEtalon.size() == 0)
+    {
+        alarmMSG();
+        return;
+    }
+    else
+    {
+        myTime_ch1->start();
+        myTime_ch2->start();
+        pushRead = true;
+        ui->push_stop->setEnabled(true);
+        ui->push_start->setEnabled(false);
+        ui->checkBox_Log_file->setEnabled(false);
+        ui->checkBox_Log_full->setEnabled(false);
+        ui->push_clear_FileLog->setEnabled(false);
+        ui->push_download->setEnabled(false);
+    }
 }
 //******************************************************************************
 void CheckData::slot_StopRead()
@@ -1155,6 +1164,10 @@ void CheckData::slot_StopRead()
     pushRead = false;
     ui->push_stop->setEnabled(false);
     ui->push_start->setEnabled(true);
+    ui->checkBox_Log_file->setEnabled(true);
+    ui->checkBox_Log_full->setEnabled(true);
+    ui->push_clear_FileLog->setEnabled(true);
+    ui->push_download->setEnabled(true);
     reset_Arduino();
     flagPackage = false;
     flagNumPackage = false;
